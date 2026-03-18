@@ -36,4 +36,52 @@ router.post("/sync-profile", isAuthenticated, async (req, res) => {
   }
 });
 
+// POST /api/regenerate-bio — re-generate the AI bio (max 5 times)
+router.post("/regenerate-bio", isAuthenticated, async (req, res) => {
+  const { generateAiBio } = require("../services/bioGenerator");
+  const user = req.user;
+  const MAX_REGENS = 5;
+
+  if (user.bioRegenerations >= MAX_REGENS) {
+    return res.status(429).json({ error: `Maximum ${MAX_REGENS} regenerations reached` });
+  }
+
+  try {
+    const newBio = await generateAiBio({
+      username: user.username,
+      languages: user.languages || [],
+      personalityType: user.personalityType,
+      commitPattern: user.commitPattern,
+      repos: user.repos,
+      totalStars: user.totalStars,
+      longestStreak: user.longestStreak,
+      redFlags: user.redFlags || [],
+      pinnedRepos: [],
+    });
+
+    if (!newBio) return res.status(503).json({ error: "AI service unavailable — check OPENAI_API_KEY" });
+
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: { aiBio: newBio, bioRegenerations: { increment: 1 } },
+    });
+    res.json(updated);
+  } catch (err) {
+    console.error("Regen error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/me/bio — save a custom manually-written bio
+router.put("/me/bio", isAuthenticated, async (req, res) => {
+  const { customBio } = req.body;
+  if (typeof customBio !== "string") return res.status(400).json({ error: "customBio required" });
+
+  const updated = await prisma.user.update({
+    where: { id: req.user.id },
+    data: { customBio: customBio.trim().slice(0, 500) },
+  });
+  res.json(updated);
+});
+
 module.exports = router;

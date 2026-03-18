@@ -4,6 +4,10 @@ import { useAuth } from "../context/AuthContext";
 export default function Profile() {
   const { user, setUser } = useAuth();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [customBioText, setCustomBioText] = useState(user?.customBio || "");
+  const [bioExpanded, setBioExpanded] = useState(false);
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -17,6 +21,41 @@ export default function Profile() {
       console.error("Sync failed", e);
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    setIsRegenerating(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/regenerate-bio", { method: "POST", credentials: "include" });
+      const updatedUser = await res.json();
+      if (!updatedUser.error) {
+        setUser(updatedUser);
+      } else {
+        alert(updatedUser.error); // Show error like "Maximum 5 regenerations reached"
+      }
+    } catch (e) {
+      console.error("Regen failed", e);
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  const handleSaveBio = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/me/bio", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ customBio: customBioText }),
+      });
+      const updatedUser = await res.json();
+      if (!updatedUser.error) {
+        setUser(updatedUser);
+        setIsEditingBio(false);
+      }
+    } catch (e) {
+      console.error("Save generic bio failed", e);
     }
   };
 
@@ -34,9 +73,45 @@ export default function Profile() {
           className="w-32 h-32 rounded-full border-4 border-bg-card ring-2 ring-brand-pink/50 z-10"
         />
 
-        <div className="flex-1 text-center md:text-left z-10">
+        <div className="flex-1 text-center md:text-left z-10 w-full">
           <h1 className="text-3xl font-black text-text-primary mb-2">@{user.username}</h1>
-          {user.bio && <p className="text-text-secondary text-base mb-3 max-w-lg">{user.bio}</p>}
+          
+          {/* Bio Section */}
+          <div className="mb-4 relative">
+            {isEditingBio ? (
+              <div className="flex flex-col gap-2 max-w-lg mx-auto md:mx-0">
+                <textarea 
+                  className="w-full bg-bg-base/50 border border-bg-border rounded-lg p-3 text-sm text-text-primary focus:outline-none focus:border-brand-pink min-h-[100px]"
+                  value={customBioText}
+                  onChange={(e) => setCustomBioText(e.target.value)}
+                  placeholder="Write your own catchy bio..."
+                />
+                <div className="flex gap-2 justify-end">
+                  <button onClick={() => setIsEditingBio(false)} className="text-xs text-text-muted hover:text-text-primary px-3 py-1">Cancel</button>
+                  <button onClick={handleSaveBio} className="btn-primary text-xs px-4 py-1.5 rounded-md">Save</button>
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-xl mx-auto md:mx-0">
+                <p className={`text-text-secondary text-base italic leading-relaxed ${!bioExpanded && 'line-clamp-2'}`}>
+                  "{user.customBio || user.aiBio || user.bio || "Still syncing a bio..."}"
+                </p>
+                <div className="flex items-center justify-center md:justify-start gap-4 mt-2">
+                  {!user.customBio && user.aiBio && (
+                    <span className="text-[10px] uppercase tracking-widest text-brand-purple-soft/70 font-bold border border-brand-purple/20 px-2 py-0.5 rounded-full">✨ AI Generated</span>
+                  )}
+                  {(user.customBio || user.aiBio) && (
+                    <button onClick={() => setBioExpanded(!bioExpanded)} className="text-xs text-brand-pink hover:underline">
+                      {bioExpanded ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                  <button onClick={() => { setCustomBioText(user.customBio || user.aiBio || user.bio || ""); setIsEditingBio(true); }} className="text-xs text-text-muted hover:text-text-primary underline">
+                    {user.customBio ? "Edit Bio" : "Write my own"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Personality Badge */}
           {user.personalityType && (
@@ -53,13 +128,25 @@ export default function Profile() {
           </div>
         </div>
 
-        <button
-          onClick={handleSync}
-          disabled={isSyncing}
-          className="z-10 btn-primary px-6 py-3 whitespace-nowrap disabled:opacity-50"
-        >
-          {isSyncing ? "Syncing..." : "🔄 Refresh Data"}
-        </button>
+        <div className="flex flex-col gap-3 z-10 w-full sm:w-auto mt-6 md:mt-0">
+          <button
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="btn-primary px-6 py-3 whitespace-nowrap disabled:opacity-50 w-full"
+          >
+            {isSyncing ? "Syncing..." : "🔄 Refresh Data"}
+          </button>
+          
+          {(!user.customBio && user.bioRegenerations < 5) && (
+            <button
+              onClick={handleRegenerate}
+              disabled={isRegenerating || isSyncing}
+              className="px-6 py-2.5 rounded-xl border border-bg-border bg-bg-base/50 text-sm font-semibold text-text-secondary hover:text-text-primary hover:border-brand-purple/50 transition-colors disabled:opacity-50 whitespace-nowrap w-full flex items-center justify-center gap-2"
+            >
+              🪄 {isRegenerating ? "Generating..." : `Regenerate Bio (${5 - (user.bioRegenerations || 0)} left)`}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Grid Stats */}

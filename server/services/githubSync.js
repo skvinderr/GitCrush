@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { computePersonalityType, detectRedFlags } = require("./profileAnalysis");
+const { generateAiBio } = require("./bioGenerator");
 const prisma = new PrismaClient();
 
 async function fetchFromRest(endpoint, token) {
@@ -164,7 +165,29 @@ async function syncGithubProfile(userId) {
   const personality = computePersonalityType({ repos, hourCounts, languagesMap, totalCommits });
   const redFlags = detectRedFlags({ repos, allDays, totalCommits });
 
-  // ─── 6. Persist to DB ─────────────────────────────────────────────────
+  // ─── 6. AI bio — generate only on first sync to avoid token waste ─────
+  const existingUser = await prisma.user.findUnique({ where: { id: userId }, select: { aiBio: true } });
+  let aiBio = existingUser?.aiBio || null;
+
+  if (!aiBio) {
+    try {
+      aiBio = await generateAiBio({
+        username: user.username,
+        languages: topLanguages,
+        personalityType: personality.type,
+        commitPattern,
+        repos: repos.length,
+        totalStars,
+        longestStreak,
+        redFlags,
+        pinnedRepos: [], // Could be fetched separately; empty for now
+      });
+    } catch (e) {
+      console.warn("AI bio generation failed:", e.message);
+    }
+  }
+
+  // ─── 7. Persist to DB ─────────────────────────────────────────────────
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: {
@@ -178,6 +201,7 @@ async function syncGithubProfile(userId) {
       personalityType: personality.type,
       personalityDesc: personality.desc,
       redFlags,
+      ...(aiBio && { aiBio }),
       lastSyncedAt: new Date(),
     },
   });

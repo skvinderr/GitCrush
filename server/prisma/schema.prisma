@@ -31,6 +31,9 @@ model User {
   personalityType String?
   personalityDesc String?
   redFlags        Json?
+  aiBio           String?
+  customBio       String?
+  bioRegenerations Int      @default(0)
   createdAt       DateTime  @default(now())
 }
 
