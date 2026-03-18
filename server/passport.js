@@ -11,21 +11,43 @@ passport.use(
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: "http://localhost:5000/auth/github/callback",
       scope: ["user:email", "public_repo"],
+      // Required by GitHub's API — prevents InternalOAuthError on some Node versions
+      userAgent: "GitCrush/1.0",
+      // We will use the accessToken to fetch the profile ourselves
+      skipUserProfile: false,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
+        // Manually re-fetch the profile using Node's native fetch (much more reliable on Windows)
+        // This avoids the TLSSocket errors in node-oauth
+        let ghProfile = profile._json;
+        try {
+          const profileRes = await fetch("https://api.github.com/user", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              Accept: "application/vnd.github.v3+json",
+              "User-Agent": "GitCrush/1.0",
+              "X-GitHub-Api-Version": "2022-11-28",
+            },
+          });
+          if (profileRes.ok) {
+            ghProfile = await profileRes.json();
+          }
+        } catch (fetchErr) {
+          console.warn("Manual profile fetch failed, falling back to passport profile:", fetchErr.message);
+        }
+
         const githubUser = {
-          githubId: profile.id.toString(),
+          githubId: (ghProfile.id || profile.id).toString(),
           accessToken: accessToken,
-          username: profile.username,
-          avatarUrl: profile._json.avatar_url,
-          bio: profile._json.bio || null,
-          repos: profile._json.public_repos || 0,
-          followers: profile._json.followers || 0,
-          following: profile._json.following || 0,
+          username: ghProfile.login || profile.username,
+          avatarUrl: ghProfile.avatar_url,
+          bio: ghProfile.bio || null,
+          repos: ghProfile.public_repos || 0,
+          followers: ghProfile.followers || 0,
+          following: ghProfile.following || 0,
         };
 
-        // Upsert user — create if first login, update if returning
         const user = await prisma.user.upsert({
           where: { githubId: githubUser.githubId },
           update: {

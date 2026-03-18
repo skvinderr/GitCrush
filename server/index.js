@@ -2,9 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
-const passport = require("passport");
-
-require("./passport");
 
 const authRoutes = require("./routes/auth");
 const apiRoutes = require("./routes/api");
@@ -34,9 +31,6 @@ app.use(
   })
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
 app.use("/auth", authRoutes);
 app.use("/api", apiRoutes);
@@ -49,3 +43,4 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 GitCrush server running on http://localhost:${PORT}`);
 });
+
