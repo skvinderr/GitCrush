@@ -11,13 +11,23 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  githubId  String   @unique
-  username  String
-  avatarUrl String
-  bio       String?
-  repos     Int      @default(0)
-  followers Int      @default(0)
-  following Int      @default(0)
-  createdAt DateTime @default(now())
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  githubId        String    @unique
+  accessToken     String?
+  username        String
+  avatarUrl       String
+  bio             String?
+  repos           Int       @default(0)
+  followers       Int       @default(0)
+  following       Int       @default(0)
+  languages       Json?
+  commitPattern   String?
+  topics          String[]
+  totalStars      Int       @default(0)
+  experienceScore Int       @default(0)
+  longestStreak   Int       @default(0)
+  currentStreak   Int       @default(0)
+  lastSyncedAt    DateTime?
+  createdAt       DateTime  @default(now())
 }
+

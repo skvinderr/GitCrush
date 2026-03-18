@@ -10,12 +10,13 @@ passport.use(
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: "http://localhost:5000/auth/github/callback",
-      scope: ["user:email"],
+      scope: ["user:email", "public_repo"],
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
         const githubUser = {
           githubId: profile.id.toString(),
+          accessToken: accessToken,
           username: profile.username,
           avatarUrl: profile._json.avatar_url,
           bio: profile._json.bio || null,
@@ -28,6 +29,7 @@ passport.use(
         const user = await prisma.user.upsert({
           where: { githubId: githubUser.githubId },
           update: {
+            accessToken: githubUser.accessToken,
             username: githubUser.username,
             avatarUrl: githubUser.avatarUrl,
             bio: githubUser.bio,
@@ -40,6 +42,7 @@ passport.use(
 
         return done(null, user);
       } catch (err) {
+        console.error("Auth error:", err);
         return done(err, null);
       }
     }
