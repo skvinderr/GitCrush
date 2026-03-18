@@ -28,6 +28,9 @@ model User {
   longestStreak   Int       @default(0)
   currentStreak   Int       @default(0)
   lastSyncedAt    DateTime?
+  personalityType String?
+  personalityDesc String?
+  redFlags        Json?
   createdAt       DateTime  @default(now())
 }
 

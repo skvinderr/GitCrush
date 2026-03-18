@@ -36,7 +36,15 @@ export default function Profile() {
 
         <div className="flex-1 text-center md:text-left z-10">
           <h1 className="text-3xl font-black text-text-primary mb-2">@{user.username}</h1>
-          {user.bio && <p className="text-text-secondary text-base mb-4 max-w-lg">{user.bio}</p>}
+          {user.bio && <p className="text-text-secondary text-base mb-3 max-w-lg">{user.bio}</p>}
+
+          {/* Personality Badge */}
+          {user.personalityType && (
+            <div className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full border border-brand-purple/40 bg-brand-purple/15 text-sm font-semibold text-text-primary">
+              <span className="text-brand-purple-soft">🎭</span>
+              {user.personalityType}
+            </div>
+          )}
           
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-mono text-text-muted">
             <span className="flex items-center gap-1">📦 {user.repos} repos</span>
@@ -132,6 +140,39 @@ export default function Profile() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Personality + Red Flags Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {/* Personality Card */}
+        {user.personalityType && (
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-bold text-text-primary mb-2 flex items-center gap-2">
+              <span>🎭</span> Dev Archetype
+            </h3>
+            <p className="text-xl font-black mb-2" style={{ background: "linear-gradient(135deg, #e91e8c, #a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              {user.personalityType}
+            </p>
+            <p className="text-text-secondary text-sm leading-relaxed">{user.personalityDesc}</p>
+          </div>
+        )}
+
+        {/* Red Flags Card */}
+        {user.redFlags && user.redFlags.length > 0 && (
+          <div className="glass-card p-6 border border-red-500/10">
+            <h3 className="text-lg font-bold text-text-primary mb-3 flex items-center gap-2">
+              <span>🚩</span> Red Flags
+              <span className="text-xs font-normal text-text-muted ml-1">(purely for dating science)</span>
+            </h3>
+            <ul className="space-y-2">
+              {user.redFlags.map((flag, idx) => (
+                <li key={idx} className="text-sm text-red-400/90 bg-red-500/5 border border-red-500/10 rounded-xl px-3 py-2">
+                  {flag}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
     </div>
