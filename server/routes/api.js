@@ -59,7 +59,7 @@ router.post("/regenerate-bio", isAuthenticated, async (req, res) => {
       pinnedRepos: [],
     });
 
-    if (!newBio) return res.status(503).json({ error: "AI service unavailable — check OPENAI_API_KEY" });
+    if (!newBio) return res.status(503).json({ error: "AI service unavailable — check GROQ_API_KEY" });
 
     const updated = await prisma.user.update({
       where: { id: user.id },
