@@ -59,6 +59,7 @@ model Match {
   user1               User     @relation("MatchesUser1", fields: [user1Id], references: [id])
   user2               User     @relation("MatchesUser2", fields: [user2Id], references: [id])
   messages            Message[] @relation("MatchMessages")
+  challenge           Challenge?
 
   @@unique([user1Id, user2Id])
 }
@@ -68,7 +69,7 @@ model Message {
   matchId   String   @db.ObjectId
   senderId  String   @db.ObjectId
   content   String
-  type      String   @default("text") // text, code, repo, system
+  type      String   @default("text") // text, code, repo, system, challenge
   language  String?  // for syntax highlighting
   reactions Json?    // { "⭐": [], "🔥": [] } mapping emojis to userIds
   readAt    DateTime?
@@ -76,6 +77,22 @@ model Message {
 
   match     Match    @relation("MatchMessages", fields: [matchId], references: [id], onDelete: Cascade)
   sender    User     @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Challenge {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  matchId          String   @db.ObjectId @unique
+  promptId         Int      // Index from the 10 preset challenges
+  user1Solution    String?
+  user1Language    String?
+  user2Solution    String?
+  user2Language    String?
+  user1SubmittedAt DateTime?
+  user2SubmittedAt DateTime?
+  revealedAt       DateTime?
+  createdAt        DateTime @default(now())
+
+  match            Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
 }
 
 model Swipe {

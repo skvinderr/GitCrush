@@ -8,6 +8,19 @@ import "highlight.js/styles/atom-one-dark.css"; // Beautiful dark theme
 
 const AVAILABLE_REACTIONS = ["⭐", "🔥", "💀", "👀", "🚀"];
 
+const CHALLENGE_PROMPTS = [
+  "FizzBuzz but make it interesting — fizz for primes, buzz for fibonacci numbers",
+  "Write a function that roasts a variable name. Input: 'x1', Output: 'Did you really name it x1?'",
+  "Given an array of commit messages, return only the ones that are actual descriptions (not 'fix', 'wip', 'asdf', 'update')",
+  "Write the world's most passive-aggressive comment for a function that divides by zero",
+  "Reverse a string. But without using any built-in reverse function. And write it in the most unreadable one-liner possible.",
+  "Write a function isPairProgrammingCompatible(dev1, dev2) — you define the inputs and logic",
+  "Calculate the 'bus factor' score of a fake 3-person team given their commit counts",
+  "Write a function that converts a GitHub username to a horoscope sign based on account creation month",
+  "Given an array of tech stack names, return them sorted by 'how much they'd annoy a senior dev at a standup'",
+  "Write a decorator/wrapper that makes any function print a sarcastic loading message before running"
+];
+
 // Helper to format relative time
 function timeFormatter(dateString) {
   const d = new Date(dateString);
@@ -206,13 +219,21 @@ export default function Chat() {
           if (msg.type === "system") {
             return (
               <div key={msg.id} className="flex justify-center w-full my-6">
-                <div className="bg-bg-card/50 border border-bg-border px-6 py-3 rounded-2xl flex items-center gap-3 backdrop-blur-sm max-w-lg text-center">
+                <div className="bg-bg-card/50 border border-bg-border px-6 py-3 rounded-2xl flex items-center gap-3 backdrop-blur-sm max-w-lg text-center shadow-lg">
                   <span className="text-2xl animate-bounce">🧊</span>
                   <div className="text-sm">
                     <span className="text-brand-pink font-bold">ICEBREAKER: </span>
                     <span className="text-text-primary italic">"{msg.content.replace("You just matched! Here's an icebreaker: ", "")}"</span>
                   </div>
                 </div>
+              </div>
+            );
+          }
+
+          if (msg.type === "challenge") {
+            return (
+              <div key={msg.id} className="flex justify-center w-full my-8">
+                <ChallengeCard matchId={matchId} partner={partner} socket={socketRef.current} />
               </div>
             );
           }
@@ -456,6 +477,140 @@ function CodeSnippetModal({ onClose, onSend }) {
           <button onClick={() => onSend(code, lang)} disabled={!code.trim()} className="btn-primary px-6 py-2">Push Code</button>
         </div>
       </motion.div>
+    </div>
+  );
+}
+
+function ChallengeCard({ matchId, partner, socket }) {
+  const [challenge, setChallenge] = useState(null);
+  const [code, setCode] = useState("");
+  const [lang, setLang] = useState("javascript");
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchChallenge = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/challenges/${matchId}`, { credentials: "include" });
+      if (res.ok) {
+        setChallenge(await res.json());
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    fetchChallenge();
+    if (socket) {
+      socket.on("challenge_updated", fetchChallenge);
+      return () => socket.off("challenge_updated", fetchChallenge);
+    }
+  }, [matchId, socket]);
+
+  // Apply highlight.js on reveal
+  useEffect(() => {
+    if (challenge?.revealedAt) {
+      setTimeout(() => {
+        document.querySelectorAll('.challenge-reveal pre code').forEach((el) => {
+          hljs.highlightElement(el);
+        });
+      }, 100);
+    }
+  }, [challenge?.revealedAt]);
+
+  if (!challenge) return null;
+
+  const prompt = CHALLENGE_PROMPTS[challenge.promptId];
+  const isRevealed = !!challenge.revealedAt;
+  
+  // The backend obscures the OTHER user's solution as 'HIDDEN' if not revealed format.
+  // We can figure out if WE submitted if either user1Solution or user2Solution is NOT 'HIDDEN' and NOT null.
+  const ourSolution = (challenge.user1Solution && challenge.user1Solution !== 'HIDDEN') ? challenge.user1Solution : 
+                      (challenge.user2Solution && challenge.user2Solution !== 'HIDDEN') ? challenge.user2Solution : null;
+  const hasSubmitted = !!ourSolution;
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/challenges/${matchId}/submit`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, language: lang }),
+        credentials: "include"
+      });
+      if (res.ok) {
+        socket?.emit("notify_challenge_update", { matchId });
+        fetchChallenge();
+      }
+    } catch(e) {}
+    setSubmitting(false);
+  };
+
+  return (
+    <div className="w-full max-w-3xl bg-bg-card border-2 border-brand-pink/30 rounded-[2rem] shadow-2xl overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-pink to-brand-purple" />
+      <div className="p-6 border-b border-bg-border bg-bg-base/30 text-center">
+        <h3 className="text-xl font-black text-white flex items-center justify-center gap-2">
+          <span>⚔️</span> Pair Programming Icebreaker
+        </h3>
+        <p className="text-brand-pink font-mono text-sm mt-3 bg-brand-pink/10 p-4 rounded-xl border border-brand-pink/20">
+          {prompt}
+        </p>
+      </div>
+
+      <div className="p-6">
+        {!hasSubmitted ? (
+          // STATE 1: Unsubmitted (Writing Code)
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-text-muted uppercase tracking-widest">Your Solution</span>
+              <select value={lang} onChange={(e)=>setLang(e.target.value)} className="bg-bg-base border border-bg-border text-xs rounded-md px-2 py-1 focus:border-brand-pink focus:ring-0">
+                 {["javascript", "typescript", "python", "rust", "go"].map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}
+              </select>
+            </div>
+            <textarea
+              className="w-full h-40 bg-[#1e1e1e] border-none rounded-xl p-4 font-mono text-sm text-gray-300 focus:ring-1 focus:ring-brand-pink resize-none"
+              placeholder="Write your one-liner here..."
+              value={code}
+              onChange={e => setCode(e.target.value)}
+            />
+            <button 
+              onClick={handleSubmit} 
+              disabled={submitting || !code.trim()} 
+              className="btn-primary py-3 flex justify-center items-center gap-2"
+            >
+              {submitting ? "Pushing..." : "Submit to Reveal Partner's Code"}
+            </button>
+          </div>
+        ) : !isRevealed ? (
+          // STATE 2: Waiting for partner
+          <div className="py-12 flex flex-col items-center justify-center text-center">
+            <div className="w-12 h-12 border-4 border-brand-pink/20 border-t-brand-pink rounded-full animate-spin mb-4"></div>
+            <h4 className="text-lg font-bold text-white mb-2">Code Pushed! 🚀</h4>
+            <p className="text-text-secondary">
+              Waiting for <span className="text-brand-pink font-bold">@{partner?.username}</span> to submit their solution...
+            </p>
+          </div>
+        ) : (
+          // STATE 3: Revealed (Side by Side)
+          <div className="challenge-reveal flex flex-col md:flex-row gap-4">
+            {/* User 1's Code */}
+            <div className="flex-1 bg-bg-base rounded-xl border border-bg-border overflow-hidden flex flex-col">
+               <div className="bg-bg-card p-2 border-b border-bg-border flex items-center justify-between">
+                 <span className="text-xs font-bold text-text-primary px-2">Solution 1</span>
+               </div>
+               <pre className="p-4 m-0 text-sm overflow-x-auto bg-[#282c34] flex-1">
+                 <code className={`language-${challenge.user1Language || 'javascript'}`}>{challenge.user1Solution}</code>
+               </pre>
+            </div>
+            {/* User 2's Code */}
+            <div className="flex-1 bg-bg-base rounded-xl border border-bg-border overflow-hidden flex flex-col">
+               <div className="bg-bg-card p-2 border-b border-bg-border flex items-center justify-between">
+                 <span className="text-xs font-bold text-text-primary px-2">Solution 2</span>
+               </div>
+               <pre className="p-4 m-0 text-sm overflow-x-auto bg-[#282c34] flex-1">
+                 <code className={`language-${challenge.user2Language || 'javascript'}`}>{challenge.user2Solution}</code>
+               </pre>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

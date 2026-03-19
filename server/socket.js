@@ -111,6 +111,11 @@ function initSocket(server, sessionMiddleware) {
       }
     });
 
+    // Notify others that a challenge was submitted or updated
+    socket.on("notify_challenge_update", ({ matchId }) => {
+      socket.to(matchId).emit("challenge_updated");
+    });
+
     socket.on("disconnect", () => {
       console.log(`Socket disconnected: ${socket.userId}`);
     });

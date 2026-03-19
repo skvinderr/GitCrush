@@ -275,7 +275,7 @@ router.get("/messages/:matchId", isAuthenticated, async (req, res) => {
       orderBy: { createdAt: "asc" }
     });
 
-    // Auto-Icebreaker system message
+    // Auto-Icebreaker system message and Challenge
     if (messages.length === 0) {
       const icebreakers = [
         "What's a technology you hate but use every day?",
@@ -289,13 +289,35 @@ router.get("/messages/:matchId", isAuthenticated, async (req, res) => {
       const sysMsg = await prisma.message.create({
         data: {
           matchId,
-          senderId: req.user.id, // we attribute it to current user or just standard system logic
+          senderId: req.user.id,
           content: `You just matched! Here's an icebreaker: ${randomIcebreaker}`,
           type: "system",
         },
         include: { sender: true }
       });
       messages = [sysMsg];
+
+      // Also spawn a Challenge
+      try {
+         const challenge = await prisma.challenge.create({
+            data: {
+               matchId,
+               promptId: Math.floor(Math.random() * 10) // 0 to 9
+            }
+         });
+         const cxMsg = await prisma.message.create({
+            data: {
+               matchId,
+               senderId: req.user.id,
+               content: challenge.id,
+               type: "challenge"
+            },
+            include: { sender: true }
+         });
+         messages.push(cxMsg);
+      } catch (err) {
+         console.error("Error creating challenge:", err);
+      }
     }
 
     // Strip out sensitive info from sender objects
@@ -309,6 +331,82 @@ router.get("/messages/:matchId", isAuthenticated, async (req, res) => {
     console.error("Failed to fetch messages", err);
     res.status(500).json({ error: "Failed to fetch messages" });
   }
+});
+
+// GET /api/challenges/:matchId — fetch the challenge state
+router.get("/challenges/:matchId", isAuthenticated, async (req, res) => {
+   try {
+      const { matchId } = req.params;
+      const challenge = await prisma.challenge.findUnique({ where: { matchId } });
+      if (!challenge) return res.status(404).json({ error: "Challenge not found" });
+
+      // Identify who is user1 vs user2 conceptually in this match
+      const match = await prisma.match.findUnique({ where: { id: matchId }});
+      if (match.user1Id !== req.user.id && match.user2Id !== req.user.id) {
+         return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      const isUser1 = match.user1Id === req.user.id;
+      
+      // If not fully revealed, obscure the other person's code
+      let safeChallenge = { ...challenge };
+      if (!challenge.revealedAt) {
+         if (isUser1) {
+            safeChallenge.user2Solution = challenge.user2Solution ? "HIDDEN" : null;
+            safeChallenge.user2Language = challenge.user2Language ? "HIDDEN" : null;
+         } else {
+            safeChallenge.user1Solution = challenge.user1Solution ? "HIDDEN" : null;
+            safeChallenge.user1Language = challenge.user1Language ? "HIDDEN" : null;
+         }
+      }
+      res.json(safeChallenge);
+   } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch challenge" });
+   }
+});
+
+// POST /api/challenges/:matchId/submit — submit a solution
+router.post("/challenges/:matchId/submit", isAuthenticated, async (req, res) => {
+   try {
+      const { matchId } = req.params;
+      const { code, language } = req.body;
+      
+      const challenge = await prisma.challenge.findUnique({ where: { matchId } });
+      const match = await prisma.match.findUnique({ where: { id: matchId }});
+      if (!challenge || !match) return res.status(404).json({ error: "Not found" });
+
+      const isUser1 = match.user1Id === req.user.id;
+      
+      const updateData = {};
+      if (isUser1 && !challenge.user1SubmittedAt) {
+         updateData.user1Solution = code;
+         updateData.user1Language = language;
+         updateData.user1SubmittedAt = new Date();
+      } else if (!isUser1 && !challenge.user2SubmittedAt) {
+         updateData.user2Solution = code;
+         updateData.user2Language = language;
+         updateData.user2SubmittedAt = new Date();
+      } else {
+         return res.status(400).json({ error: "Already submitted" });
+      }
+
+      // Check if this makes both submitted
+      const willBeRevealed = (isUser1 && challenge.user2SubmittedAt) || (!isUser1 && challenge.user1SubmittedAt);
+      if (willBeRevealed) {
+         updateData.revealedAt = new Date();
+      }
+
+      const updated = await prisma.challenge.update({
+         where: { matchId },
+         data: updateData
+      });
+
+      res.json(updated);
+   } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to submit challenge" });
+   }
 });
 
 // GET /api/compatibility/:otherUserId — Compute or fetch cached score
