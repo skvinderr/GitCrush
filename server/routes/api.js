@@ -84,17 +84,105 @@ router.put("/me/bio", isAuthenticated, async (req, res) => {
   res.json(updated);
 });
 
-// GET /api/discover — fetch potential matches (exclude self)
+// GET /api/discover — fetch potential matches (exclude self and already swiped)
 router.get("/discover", isAuthenticated, async (req, res) => {
   try {
-    const users = await prisma.user.findMany({
-      where: { id: { not: req.user.id } },
-      take: 20,
+    const currentUserId = req.user.id;
+    const { computeCompatibility } = require("../services/compatibilityEngine");
+
+    // Get IDs of users already swiped on
+    const pastSwipes = await prisma.swipe.findMany({
+      where: { swiperId: currentUserId },
+      select: { targetUserId: true },
     });
-    res.json(users);
+    const swipedIds = pastSwipes.map(s => s.targetUserId);
+    swipedIds.push(currentUserId); // Exclude self too
+
+    // Extract query filters
+    const intentQuery = req.query.intent ? req.query.intent.split(',') : null;
+    const langsQuery = req.query.langs ? req.query.langs.split(',') : null;
+    const expQuery = req.query.exp || 'Any'; // Junior, Mid, Senior, Any
+
+    // Fetch batch of fresh users (we over-fetch to 50 to allow post-db filtering)
+    let users = await prisma.user.findMany({
+      where: { 
+        id: { notIn: swipedIds },
+        ...(intentQuery && { intent: { hasSome: intentQuery } }) // Prisma Mongo array check
+      },
+      take: 50,
+    });
+
+    // ── Post-DB Filtering (for JSON languages and experience scores) ──
+    if (langsQuery && langsQuery.length > 0) {
+      users = users.filter(u => {
+        if (!u.languages) return false;
+        const userLangs = u.languages.map(l => l.lang.toLowerCase());
+        return langsQuery.some(ql => userLangs.includes(ql.toLowerCase()));
+      });
+    }
+
+    if (expQuery === 'Junior') users = users.filter(u => u.experienceScore <= 3);
+    else if (expQuery === 'Mid') users = users.filter(u => u.experienceScore > 3 && u.experienceScore <= 7);
+    else if (expQuery === 'Senior') users = users.filter(u => u.experienceScore > 7);
+
+    // Limit to 20 after filtering
+    users = users.slice(0, 20);
+
+    // Compute compatibility scores for all returned users on the fly
+    const scoredUsers = users.map(u => {
+      const { score, explanation } = computeCompatibility(req.user, u);
+      return { ...u, matchScore: score, matchReason: explanation };
+    });
+
+    // Sort by compatibility DESC
+    scoredUsers.sort((a, b) => b.matchScore - a.matchScore);
+
+    res.json(scoredUsers);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to load discover feed" });
+  }
+});
+
+// POST /api/swipe — record a swipe and check for mutual match
+router.post("/swipe", isAuthenticated, async (req, res) => {
+  try {
+    const swiperId = req.user.id;
+    const { targetUserId, direction } = req.body; // 'left', 'right', 'super'
+
+    if (!targetUserId || !direction) return res.status(400).json({ error: "Missing parameters" });
+
+    // Save the new swipe
+    const swipe = await prisma.swipe.create({
+      data: { swiperId, targetUserId, direction }
+    });
+
+    // Check if it's a mutual crush
+    let isMatch = false;
+    if (direction === 'right' || direction === 'super') {
+      const mutualSwipe = await prisma.swipe.findUnique({
+        where: { swiperId_targetUserId: { swiperId: targetUserId, targetUserId: swiperId } }
+      });
+
+      if (mutualSwipe && (mutualSwipe.direction === 'right' || mutualSwipe.direction === 'super')) {
+        isMatch = true;
+        // Mark both as mutual match
+        await prisma.swipe.updateMany({
+          where: {
+            OR: [
+              { swiperId, targetUserId },
+              { swiperId: targetUserId, targetUserId: swiperId }
+            ]
+          },
+          data: { isMutualMatch: true }
+        });
+      }
+    }
+
+    res.json({ success: true, isMatch });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to record swipe" });
   }
 });
 

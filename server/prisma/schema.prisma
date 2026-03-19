@@ -34,7 +34,28 @@ model User {
   aiBio           String?
   customBio       String?
   bioRegenerations Int      @default(0)
+  intent          String[]  @default(["Collaborator", "Friendship"])
+  location        String?
+  timezoneOffset  Int?
   createdAt       DateTime  @default(now())
+
+  // Relations
+  swipesGiven     Swipe[]   @relation("SwipesGiven")
+  swipesReceived  Swipe[]   @relation("SwipesReceived")
+}
+
+model Swipe {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  swiperId       String   @db.ObjectId
+  targetUserId   String   @db.ObjectId
+  direction      String   // 'left', 'right', 'super'
+  isMutualMatch  Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  swiper         User     @relation("SwipesGiven", fields: [swiperId], references: [id])
+  targetUser     User     @relation("SwipesReceived", fields: [targetUserId], references: [id])
+
+  @@unique([swiperId, targetUserId])
 }
 
 model CompatibilityCache {
