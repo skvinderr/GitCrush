@@ -37,3 +37,14 @@ model User {
   createdAt       DateTime  @default(now())
 }
 
+model CompatibilityCache {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userAId     String   @db.ObjectId
+  userBId     String   @db.ObjectId
+  score       Int
+  explanation String
+  computedAt  DateTime @default(now())
+
+  @@unique([userAId, userBId])
+}
+

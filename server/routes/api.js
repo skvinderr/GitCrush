@@ -84,4 +84,71 @@ router.put("/me/bio", isAuthenticated, async (req, res) => {
   res.json(updated);
 });
 
+// GET /api/discover — fetch potential matches (exclude self)
+router.get("/discover", isAuthenticated, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { id: { not: req.user.id } },
+      take: 20,
+    });
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load discover feed" });
+  }
+});
+
+// GET /api/compatibility/:otherUserId — Compute or fetch cached score
+router.get("/compatibility/:otherUserId", isAuthenticated, async (req, res) => {
+  const { computeCompatibility } = require("../services/compatibilityEngine");
+  const currentUserId = req.user.id;
+  const otherUserId = req.params.otherUserId;
+
+  if (currentUserId === otherUserId) {
+    return res.status(400).json({ error: "Cannot compare with yourself" });
+  }
+
+  try {
+    // Determine deterministic ordering for userA and userB to prevent duplicate cache entries
+    const [userAId, userBId] = [currentUserId, otherUserId].sort();
+
+    // 1. Check cache
+    const cacheResult = await prisma.compatibilityCache.findUnique({
+      where: {
+        userAId_userBId: { userAId, userBId }
+      }
+    });
+
+    if (cacheResult) {
+      return res.json({ score: cacheResult.score, explanation: cacheResult.explanation, fromCache: true });
+    }
+
+    // 2. Not in cache, fetch the users
+    const [userA, userB] = await Promise.all([
+      prisma.user.findUnique({ where: { id: userAId } }),
+      prisma.user.findUnique({ where: { id: userBId } })
+    ]);
+
+    if (!userA || !userB) return res.status(404).json({ error: "User not found" });
+
+    // 3. Compute metrics
+    const { score, explanation } = computeCompatibility(userA, userB);
+
+    // 4. Cache and return
+    const newCache = await prisma.compatibilityCache.create({
+      data: {
+        userAId,
+        userBId,
+        score,
+        explanation
+      }
+    });
+
+    res.json({ score: newCache.score, explanation: newCache.explanation, fromCache: false });
+  } catch (err) {
+    console.error("Compatibility check failed:", err);
+    res.status(500).json({ error: "Failed to compute compatibility" });
+  }
+});
+
 module.exports = router;
