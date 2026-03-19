@@ -6,7 +6,11 @@ const session = require("express-session");
 const authRoutes = require("./routes/auth");
 const apiRoutes = require("./routes/api");
 
+const http = require("http");
+const { initSocket } = require("./socket");
+
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // ─── MIDDLEWARE ────────────────────────────────────────────────────────────────
@@ -19,17 +23,19 @@ app.use(
 
 app.use(express.json());
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "gitcrush_secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      httpOnly: true,
-    },
-  })
-);
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET || "gitcrush_secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    httpOnly: true,
+  },
+});
+app.use(sessionMiddleware);
+
+// Initialize Socket.io
+initSocket(server, sessionMiddleware);
 
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
 app.use("/auth", authRoutes);
@@ -40,7 +46,7 @@ app.get("/", (req, res) => {
 });
 
 // ─── START ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 GitCrush server running on http://localhost:${PORT}`);
 });
 

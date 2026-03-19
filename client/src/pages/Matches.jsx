@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 // Helper for formatting relative time
 function timeAgo(dateString) {
@@ -139,6 +140,7 @@ function MatchDetailModal({ match, onClose, onUnmatch }) {
 }
 
 export default function Matches() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("new"); // "new" or "conversations"
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -246,7 +248,7 @@ export default function Matches() {
                        <button onClick={() => setSelectedMatch(match)} className="flex-1 py-2 rounded-lg text-xs font-bold text-text-primary bg-bg-base hover:bg-bg-border border border-bg-border transition-colors">
                          View profile
                        </button>
-                       <button onClick={() => alert("Chat coming soon!")} className="flex-1 py-2 rounded-lg text-xs font-bold text-white bg-brand-pink hover:bg-brand-pink-hover transition-colors shadow-lg shadow-brand-pink/20">
+                       <button onClick={() => navigate(`/chat/${match.id}`)} className="flex-1 py-2 rounded-lg text-xs font-bold text-white bg-brand-pink hover:bg-brand-pink-hover transition-colors shadow-lg shadow-brand-pink/20">
                          Open chat
                        </button>
                     </div>

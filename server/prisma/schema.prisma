@@ -44,6 +44,7 @@ model User {
   swipesReceived  Swipe[]   @relation("SwipesReceived")
   matches1        Match[]   @relation("MatchesUser1")
   matches2        Match[]   @relation("MatchesUser2")
+  messages        Message[] @relation("UserMessages")
 }
 
 model Match {
@@ -57,8 +58,24 @@ model Match {
 
   user1               User     @relation("MatchesUser1", fields: [user1Id], references: [id])
   user2               User     @relation("MatchesUser2", fields: [user2Id], references: [id])
+  messages            Message[] @relation("MatchMessages")
 
   @@unique([user1Id, user2Id])
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  matchId   String   @db.ObjectId
+  senderId  String   @db.ObjectId
+  content   String
+  type      String   @default("text") // text, code, repo, system
+  language  String?  // for syntax highlighting
+  reactions Json?    // { "⭐": [], "🔥": [] } mapping emojis to userIds
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  match     Match    @relation("MatchMessages", fields: [matchId], references: [id], onDelete: Cascade)
+  sender    User     @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 model Swipe {

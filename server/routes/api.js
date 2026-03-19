@@ -260,6 +260,57 @@ router.delete("/matches/:id", isAuthenticated, async (req, res) => {
   }
 });
 
+// GET /api/messages/:matchId — fetch all messages for a match, injecting icebreaker if empty
+router.get("/messages/:matchId", isAuthenticated, async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const match = await prisma.match.findUnique({ where: { id: matchId } });
+    if (!match || (match.user1Id !== req.user.id && match.user2Id !== req.user.id)) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    let messages = await prisma.message.findMany({
+      where: { matchId },
+      include: { sender: true },
+      orderBy: { createdAt: "asc" }
+    });
+
+    // Auto-Icebreaker system message
+    if (messages.length === 0) {
+      const icebreakers = [
+        "What's a technology you hate but use every day?",
+        "Tabs or spaces?",
+        "What's your most embarrassing commit message?",
+        "Monorepo or polyrepo? Fight me.",
+        "What's the worst variable name you've written in production?"
+      ];
+      const randomIcebreaker = icebreakers[Math.floor(Math.random() * icebreakers.length)];
+      
+      const sysMsg = await prisma.message.create({
+        data: {
+          matchId,
+          senderId: req.user.id, // we attribute it to current user or just standard system logic
+          content: `You just matched! Here's an icebreaker: ${randomIcebreaker}`,
+          type: "system",
+        },
+        include: { sender: true }
+      });
+      messages = [sysMsg];
+    }
+
+    // Strip out sensitive info from sender objects
+    const safeMessages = messages.map(m => {
+      delete m.sender.accessToken;
+      return m;
+    });
+
+    res.json(safeMessages);
+  } catch (err) {
+    console.error("Failed to fetch messages", err);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
+});
+
 // GET /api/compatibility/:otherUserId — Compute or fetch cached score
 router.get("/compatibility/:otherUserId", isAuthenticated, async (req, res) => {
   const { computeCompatibility } = require("../services/compatibilityEngine");

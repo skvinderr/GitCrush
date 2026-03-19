@@ -54,6 +54,7 @@ function AppRoutes() {
         <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
         <Route path="/matches"  element={<ProtectedRoute><Matches  /></ProtectedRoute>} />
         <Route path="/chat"     element={<ProtectedRoute><Chat     /></ProtectedRoute>} />
+        <Route path="/chat/:matchId" element={<ProtectedRoute><Chat     /></ProtectedRoute>} />
         <Route path="/profile"  element={<ProtectedRoute><Profile  /></ProtectedRoute>} />
         <Route path="*"         element={<Navigate to="/" replace />} />
       </Routes>
