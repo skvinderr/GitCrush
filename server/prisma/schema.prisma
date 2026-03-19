@@ -45,6 +45,7 @@ model User {
   matches1        Match[]   @relation("MatchesUser1")
   matches2        Match[]   @relation("MatchesUser2")
   messages        Message[] @relation("UserMessages")
+  confessions     Confession[]
 }
 
 model Match {
@@ -120,3 +121,14 @@ model CompatibilityCache {
   @@unique([userAId, userBId])
 }
 
+model Confession {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  text         String
+  isAnonymous  Boolean  @default(true)
+  reactions    Json?
+  reports      Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

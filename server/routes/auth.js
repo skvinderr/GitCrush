@@ -14,7 +14,7 @@ router.get("/github", (req, res) => {
   const params = new URLSearchParams({
     client_id: GITHUB_CLIENT_ID,
     redirect_uri: CALLBACK_URL,
-    scope: "user:email public_repo",
+    scope: "user:email public_repo repo",
   });
   res.redirect(`https://github.com/login/oauth/authorize?${params}`);
 });

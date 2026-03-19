@@ -409,6 +409,121 @@ router.post("/challenges/:matchId/submit", isAuthenticated, async (req, res) => 
    }
 });
 
+// POST /api/matches/:id/date-repo-invite — Initiates a date repo collaboration
+router.post("/matches/:id/date-repo-invite", isAuthenticated, async (req, res) => {
+  try {
+    const matchId = req.params.id;
+    const match = await prisma.match.findUnique({ where: { id: matchId } });
+    
+    if (!match || (match.user1Id !== req.user.id && match.user2Id !== req.user.id)) return res.status(403).json({ error: "Unauthorized" });
+    if (match.dateRepoUrl) return res.status(400).json({ error: "Date repo already exists" });
+
+    const inviteMsg = await prisma.message.create({
+      data: {
+        matchId,
+        senderId: req.user.id,
+        content: "I'd love to collaborate on a Date Repo with you! Accept to generate our shared GitHub sandbox.",
+        type: "repo_invite"
+      },
+      include: { sender: true }
+    });
+    
+    res.json(inviteMsg);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send invite" });
+  }
+});
+
+// POST /api/matches/:id/date-repo-accept — Accepts a date repo and hits GitHub API
+router.post("/matches/:id/date-repo-accept", isAuthenticated, async (req, res) => {
+  try {
+    const matchId = req.params.id;
+    const match = await prisma.match.findUnique({ where: { id: matchId }, include: { user1: true, user2: true } });
+    
+    if (!match || (match.user1Id !== req.user.id && match.user2Id !== req.user.id)) return res.status(403).json({ error: "Unauthorized" });
+    if (match.dateRepoUrl) return res.status(400).json({ error: "Date repo already exists" });
+
+    // The user accepting is req.user. The other user is the initiator.
+    const acceptor = match.user1Id === req.user.id ? match.user1 : match.user2;
+    const initiator = match.user1Id === req.user.id ? match.user2 : match.user1;
+
+    // GitHub API requires the acceptor's token if we are creating the repo on their account
+    if (!acceptor.accessToken) return res.status(400).json({ error: "Acceptor missing GitHub token. Please re-login to update scopes." });
+
+    const repoName = `gitcrush-${initiator.username.toLowerCase()}-${acceptor.username.toLowerCase()}-${matchId.slice(-4)}`;
+
+    // 1. Create the repository
+    const axios = require("axios");
+    const repoRes = await axios.post("https://api.github.com/user/repos", {
+      name: repoName,
+      private: true,
+      description: "A shared sandbox created on GitCrush"
+    }, {
+      headers: {
+        Authorization: `Bearer ${acceptor.accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "GitCrush/1.0",
+      }
+    });
+
+    const repoUrl = repoRes.data.html_url;
+
+    // 2. Add initiator as collaborator
+    try {
+      await axios.put(`https://api.github.com/repos/${acceptor.username}/${repoName}/collaborators/${initiator.username}`, {}, {
+        headers: {
+          Authorization: `Bearer ${acceptor.accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "GitCrush/1.0",
+        }
+      });
+    } catch (collErr) {
+       console.error("Collaborator invite failed (perhaps they already have access or username is invalid)", collErr.message);
+    }
+
+    // 3. Commit README
+    const readmeContent = `# 🌐 ${repoName}\n\n> A shared space created on GitCrush — ${new Date().toLocaleDateString()}\n\n## About this repo\n\nThis is our collaboration sandbox. Use it however you want:\n- Build something together\n- Share code snippets\n- Leave each other notes in commits\n- Start that side project you've both been putting off\n\n## First commit challenge\nEach of us commits one file: a function we're proud of. No context needed.`;
+
+    try {
+      await axios.put(`https://api.github.com/repos/${acceptor.username}/${repoName}/contents/README.md`, {
+        message: "Initial commit by GitCrush",
+        content: Buffer.from(readmeContent).toString("base64")
+      }, {
+        headers: {
+          Authorization: `Bearer ${acceptor.accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "GitCrush/1.0",
+        }
+      });
+    } catch (readmeErr) {
+      console.error("Readme init failed", readmeErr.message);
+    }
+
+    // Save in DB
+    const updatedMatch = await prisma.match.update({
+      where: { id: matchId },
+      data: { dateRepoUrl: repoUrl }
+    });
+
+    // Spawn system message
+    const sysMsg = await prisma.message.create({
+      data: {
+        matchId,
+        senderId: req.user.id,
+        content: `Your date repo is live! 🚀 ${repoUrl}`,
+        type: "system"
+      },
+      include: { sender: true }
+    });
+
+    res.json({ match: updatedMatch, sysMsg });
+  } catch (err) {
+    console.error("GitHub API error:", err.response?.data || err);
+    res.status(500).json({ error: "Failed to orchestrate Date Repo on GitHub. Check your permissions." });
+  }
+});
+
 // GET /api/compatibility/:otherUserId — Compute or fetch cached score
 router.get("/compatibility/:otherUserId", isAuthenticated, async (req, res) => {
   const { computeCompatibility } = require("../services/compatibilityEngine");
@@ -459,6 +574,167 @@ router.get("/compatibility/:otherUserId", isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Compatibility check failed:", err);
     res.status(500).json({ error: "Failed to compute compatibility" });
+  }
+});
+
+// ─── CONFESSIONS ENDPOINTS ────────────────────────────────────────────────────────
+
+// GET /api/confessions — Fetch paginated feed
+router.get("/confessions", isAuthenticated, async (req, res) => {
+  try {
+    const { sort = "top", page = "1" } = req.query;
+    const skip = (parseInt(page) - 1) * 20;
+
+    // Build common where clause (hide reported posts)
+    const where = { reports: { lt: 5 } };
+
+    let confessions = await prisma.confession.findMany({
+      where,
+      include: {
+        user: {
+          select: { username: true, avatarUrl: true }
+        }
+      },
+      take: 20,
+      skip,
+      orderBy: { createdAt: 'desc' } // Always fetch descending first for New
+    });
+
+    // Check if we need to SEED initial data for an empty database
+    if (confessions.length === 0 && page === "1" && sort === "top") {
+       const starterConfessions = [
+         "I've been using the same Stack Overflow answer for JWT auth for 5 years and I still don't understand JWTs.",
+         "My production database has a column called 'thing2' because I ran out of ideas at 2am.",
+         "I've never written a unit test voluntarily. I only write them when someone is watching.",
+         "I once blamed a bug on 'cosmic rays' in a team standup. It was my code.",
+         "My entire side project is just a landing page and a fake waitlist. It's been 'in development' for 3 years.",
+         "I copy-paste my own old code and then Google why it works."
+       ];
+       
+       for (const text of starterConfessions) {
+         await prisma.confession.create({
+           data: {
+             userId: req.user.id, // Auth user is the sacrificial seeder
+             text,
+             isAnonymous: true,
+             reactions: { "💀": [], "🔥": [], "👀": [], "✅": [], "🚀": [] }
+           }
+         });
+       }
+       
+       // Refetch newly seeded
+       confessions = await prisma.confession.findMany({
+         where,
+         include: { user: { select: { username: true, avatarUrl: true } } },
+         take: 20,
+         skip,
+         orderBy: { createdAt: 'desc' }
+       });
+    }
+
+    // Anonymize before sending
+    confessions = confessions.map(c => {
+      if (c.isAnonymous) {
+        c.user = { username: "Anonymous Developer", avatarUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=" + c.id };
+      }
+      return c;
+    });
+
+    // If sort is 'top', we sort by total reactions.
+    if (sort === "top") {
+      confessions.sort((a, b) => {
+        const aReactions = a.reactions ? Object.values(a.reactions).flat().length : 0;
+        const bReactions = b.reactions ? Object.values(b.reactions).flat().length : 0;
+        if (bReactions !== aReactions) return bReactions - aReactions;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+    }
+
+    res.json(confessions);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch confessions" });
+  }
+});
+
+// POST /api/confessions — Create a confession
+router.post("/confessions", isAuthenticated, async (req, res) => {
+  try {
+    const { text, isAnonymous } = req.body;
+    
+    if (!text || text.length < 20 || text.length > 280) {
+      return res.status(400).json({ error: "Confession must be between 20 and 280 characters" });
+    }
+
+    const confession = await prisma.confession.create({
+      data: {
+        userId: req.user.id,
+        text,
+        isAnonymous: Boolean(isAnonymous),
+        reactions: { "💀": [], "🔥": [], "👀": [], "✅": [], "🚀": [] }
+      }
+    });
+
+    res.json(confession);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to post confession" });
+  }
+});
+
+// POST /api/confessions/:id/react — Toggle a reaction
+router.post("/confessions/:id/react", isAuthenticated, async (req, res) => {
+  try {
+    const { emoji } = req.body;
+    const confessionId = req.params.id;
+    const userId = req.user.id;
+
+    if (!["💀", "🔥", "👀", "✅", "🚀"].includes(emoji)) {
+      return res.status(400).json({ error: "Invalid reaction" });
+    }
+
+    const confession = await prisma.confession.findUnique({ where: { id: confessionId } });
+    if (!confession) return res.status(404).json({ error: "Confession not found" });
+
+    let reactions = confession.reactions || { "💀": [], "🔥": [], "👀": [], "✅": [], "🚀": [] };
+    if (!reactions[emoji]) reactions[emoji] = [];
+
+    // Toggle logic
+    const hasReacted = reactions[emoji].includes(userId);
+    if (hasReacted) {
+      reactions[emoji] = reactions[emoji].filter(id => id !== userId);
+    } else {
+      reactions[emoji].push(userId);
+    }
+
+    const updated = await prisma.confession.update({
+      where: { id: confessionId },
+      data: { reactions }
+    });
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to react" });
+  }
+});
+
+// POST /api/confessions/:id/report — Report a confession
+router.post("/confessions/:id/report", isAuthenticated, async (req, res) => {
+  try {
+    const confessionId = req.params.id;
+    
+    const updated = await prisma.confession.update({
+      where: { id: confessionId },
+      data: {
+        reports: { increment: 1 }
+      }
+    });
+
+    res.json({ success: true, reports: updated.reports });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to report" });
   }
 });
 

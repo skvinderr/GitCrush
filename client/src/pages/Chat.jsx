@@ -34,6 +34,7 @@ export default function Chat() {
 
   const [messages, setMessages] = useState([]);
   const [partner, setPartner] = useState(null);
+  const [matchData, setMatchData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [inputVal, setInputVal] = useState("");
   
@@ -61,17 +62,18 @@ export default function Chat() {
         const data = await res.json();
         setMessages(data);
 
-        // Find partner info from the first non-system message or by fetching the match object
-        // For simplicity, we assume we can extract partner from a message if available
         const partnerMsg = data.find(m => m.senderId !== user.id && m.type !== 'system');
         if (partnerMsg) {
           setPartner(partnerMsg.sender);
-        } else {
-          // If no partner messages yet, fetch matches to find partner profile
-          const mRes = await fetch(`http://localhost:5000/api/matches`, { credentials: "include" });
-          const mData = await mRes.json();
-          const matchObj = mData.find(m => m.id === matchId);
-          if (matchObj) setPartner(matchObj.profile);
+        }
+        
+        // Fetch match object context for Date Repos
+        const mRes = await fetch(`http://localhost:5000/api/matches`, { credentials: "include" });
+        const mData = await mRes.json();
+        const matchObj = mData.find(m => m.id === matchId);
+        if (matchObj) {
+          setMatchData(matchObj);
+          if (!partnerMsg) setPartner(matchObj.profile);
         }
       } catch (err) {
         console.error(err);
@@ -204,9 +206,17 @@ export default function Chat() {
           )}
         </div>
         {partner && (
-           <a href={`https://github.com/${partner.username}`} target="_blank" rel="noreferrer" className="px-4 py-1.5 rounded-full border border-bg-border text-xs text-text-secondary hover:text-white hover:border-brand-pink transition-colors font-bold tracking-wide">
-             View GitHub ↗
-           </a>
+          <div className="flex gap-2">
+            {matchData?.dateRepoUrl && (
+               <a href={matchData.dateRepoUrl} target="_blank" rel="noreferrer" className="hidden sm:flex px-4 py-1.5 rounded-full border border-bg-border text-xs text-brand-pink hover:text-white hover:border-brand-pink transition-colors font-bold tracking-wide items-center gap-1 bg-brand-pink/5">
+                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
+                 Date Repo
+               </a>
+            )}
+            <a href={`https://github.com/${partner.username}`} target="_blank" rel="noreferrer" className="px-4 py-1.5 rounded-full border border-bg-border text-xs text-text-secondary hover:text-white hover:border-brand-pink transition-colors font-bold tracking-wide flex items-center">
+              View GitHub ↗
+            </a>
+          </div>
         )}
       </div>
 
@@ -217,14 +227,58 @@ export default function Chat() {
 
           // Render System Message
           if (msg.type === "system") {
+            const isDateRepoSystem = msg.content.includes("Your date repo is live!");
             return (
               <div key={msg.id} className="flex justify-center w-full my-6">
-                <div className="bg-bg-card/50 border border-bg-border px-6 py-3 rounded-2xl flex items-center gap-3 backdrop-blur-sm max-w-lg text-center shadow-lg">
-                  <span className="text-2xl animate-bounce">🧊</span>
+                <div className={`border px-6 py-3 rounded-2xl flex items-center gap-3 backdrop-blur-sm max-w-lg text-center shadow-lg ${isDateRepoSystem ? 'bg-brand-pink/10 border-brand-pink/50' : 'bg-bg-card/50 border-bg-border'}`}>
+                  <span className="text-2xl animate-bounce">{isDateRepoSystem ? '🚀' : '🧊'}</span>
                   <div className="text-sm">
-                    <span className="text-brand-pink font-bold">ICEBREAKER: </span>
-                    <span className="text-text-primary italic">"{msg.content.replace("You just matched! Here's an icebreaker: ", "")}"</span>
+                    <span className="text-brand-pink font-bold">{isDateRepoSystem ? 'DATE REPO: ' : 'ICEBREAKER: '}</span>
+                    {isDateRepoSystem ? (
+                      <span className="text-text-primary italic"><RepoLinkDetector text={msg.content} /></span>
+                    ) : (
+                      <span className="text-text-primary italic">"{msg.content.replace("You just matched! Here's an icebreaker: ", "")}"</span>
+                    )}
                   </div>
+                </div>
+              </div>
+            );
+          }
+
+          if (msg.type === "repo_invite") {
+            const isInviteFromMe = msg.senderId === user.id;
+            return (
+              <div key={msg.id} className="flex justify-center w-full my-6">
+                <div className="bg-gradient-to-br from-bg-card to-bg-base border border-brand-pink/30 px-6 py-5 rounded-2xl flex flex-col items-center gap-3 backdrop-blur-sm max-w-sm text-center shadow-lg shadow-brand-pink/10">
+                  <span className="text-3xl">🤝</span>
+                  <div className="text-sm text-text-primary px-4 font-bold">
+                    {msg.content}
+                  </div>
+                  {!isInviteFromMe && !matchData?.dateRepoUrl && (
+                     <button 
+                       onClick={async () => {
+                         try {
+                           const res = await fetch(`http://localhost:5000/api/matches/${matchId}/date-repo-accept`, { method: "POST", credentials: "include" });
+                           if (res.ok) {
+                             const data = await res.json();
+                             setMatchData(data.match);
+                             if (socketRef.current) socketRef.current.emit("send_message", data.sysMsg);
+                           } else {
+                             alert("Failed to create Date Repo. Make sure you granted repo permissions on GitHub!");
+                           }
+                         } catch (e) {}
+                       }}
+                       className="btn-primary py-2 px-6 mt-2 text-sm shadow-xl shadow-brand-pink/20"
+                     >
+                       Accept & Create Sandbox
+                     </button>
+                  )}
+                  {isInviteFromMe && !matchData?.dateRepoUrl && (
+                     <p className="text-xs text-brand-pink font-bold mt-2 animate-pulse">Waiting for them to accept...</p>
+                  )}
+                  {matchData?.dateRepoUrl && (
+                     <p className="text-xs text-green-400 font-bold mt-2 border border-green-500/30 px-3 py-1 bg-green-500/10 rounded-full">Accepted! Sandbox generated.</p>
+                  )}
                 </div>
               </div>
             );
