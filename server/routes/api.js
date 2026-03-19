@@ -176,6 +176,25 @@ router.post("/swipe", isAuthenticated, async (req, res) => {
           },
           data: { isMutualMatch: true }
         });
+
+        // Insert into Match Table
+        const { computeCompatibility } = require("../services/compatibilityEngine");
+        const targetUser = await prisma.user.findUnique({ where: { id: targetUserId }});
+        const { score, explanation } = computeCompatibility(req.user, targetUser);
+
+        const uid1 = swiperId < targetUserId ? swiperId : targetUserId;
+        const uid2 = swiperId < targetUserId ? targetUserId : swiperId;
+
+        await prisma.match.upsert({
+          where: { user1Id_user2Id: { user1Id: uid1, user2Id: uid2 } },
+          update: {},
+          create: {
+            user1Id: uid1,
+            user2Id: uid2,
+            compatibilityScore: score,
+            compatExplanation: explanation
+          }
+        });
       }
     }
 
@@ -183,6 +202,61 @@ router.post("/swipe", isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to record swipe" });
+  }
+});
+
+// GET /api/matches — fetch all mutual matches for the user
+router.get("/matches", isAuthenticated, async (req, res) => {
+  try {
+    const matches = await prisma.match.findMany({
+      where: {
+        OR: [ { user1Id: req.user.id }, { user2Id: req.user.id } ]
+      },
+      include: {
+        user1: true,
+        user2: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const formatted = matches.map(m => {
+      const isUser1 = m.user1Id === req.user.id;
+      const matchProfile = isUser1 ? m.user2 : m.user1;
+      delete matchProfile.accessToken; // secure
+      return {
+        id: m.id,
+        compatibilityScore: m.compatibilityScore,
+        compatExplanation: m.compatExplanation,
+        createdAt: m.createdAt,
+        dateRepoUrl: m.dateRepoUrl,
+        profile: matchProfile
+      };
+    });
+
+    res.json(formatted);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch matches" });
+  }
+});
+
+// DELETE /api/matches/:id — unmatch a user (Close PR)
+router.delete("/matches/:id", isAuthenticated, async (req, res) => {
+  try {
+    const match = await prisma.match.findUnique({ where: { id: req.params.id } });
+    if (!match) return res.status(404).json({ error: "Match not found" });
+    if (match.user1Id !== req.user.id && match.user2Id !== req.user.id) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    await prisma.match.delete({ where: { id: req.params.id } });
+    
+    // Optional: We can leave the `Swipe` table intact to ensure they don't see each other again.
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete match" });
   }
 });
 

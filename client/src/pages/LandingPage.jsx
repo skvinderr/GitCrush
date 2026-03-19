@@ -12,7 +12,7 @@ const FEATURES = [
   {
     icon: "🧬",
     title: "Compatibility Score",
-    desc: "Our algorithm analyses your GitHub activity, commit patterns, and repo vibes to find your perfect match.",
+    desc: "Our algorithm analyses your Hub activity, commit patterns, and repo vibes to find your perfect match.",
     tags: ["98% match", "Open source", "Night owl"],
     color: "from-brand-purple/20 to-transparent",
     border: "hover:border-brand-purple/30",
@@ -73,7 +73,7 @@ export default function LandingPage() {
   useEffect(() => {
     const handleMove = (e) => {
       if (!heroRef.current) return;
-      const x = (e.clientX / window.innerWidth  - 0.5) * 20;
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
       const y = (e.clientY / window.innerHeight - 0.5) * 10;
       heroRef.current.style.setProperty("--mouse-x", `${x}px`);
       heroRef.current.style.setProperty("--mouse-y", `${y}px`);
@@ -88,8 +88,8 @@ export default function LandingPage() {
       <section className="relative flex-1 flex flex-col items-center justify-center px-4 pt-24 pb-20 overflow-hidden text-center">
         {/* Background orbs */}
         <AnimatedOrb className="-top-20 left-1/2 -translate-x-1/2" color="#e91e8c" size="600px" delay="0s" />
-        <AnimatedOrb className="top-1/2 -right-32"                  color="#7c3aed" size="400px" delay="1.5s" />
-        <AnimatedOrb className="bottom-0 left-0"                    color="#e91e8c" size="300px" delay="3s"   />
+        <AnimatedOrb className="top-1/2 -right-32" color="#7c3aed" size="400px" delay="1.5s" />
+        <AnimatedOrb className="bottom-0 left-0" color="#e91e8c" size="300px" delay="3s" />
 
         {/* Badge */}
         <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-pink/30 bg-brand-pink/10 text-brand-pink text-sm font-medium animate-fade-up">
@@ -144,7 +144,7 @@ export default function LandingPage() {
         {/* Social proof mini-bar */}
         <div className="mt-8 flex items-center gap-3 text-text-muted text-sm animate-fade-up" style={{ animationDelay: "0.4s" }}>
           <div className="flex -space-x-2">
-            {["🧑‍💻","👩‍💻","🧑‍💻","👩‍💻","🧑‍💻"].map((e, i) => (
+            {["🧑‍💻", "👩‍💻", "🧑‍💻", "👩‍💻", "🧑‍💻"].map((e, i) => (
               <div key={i} className="w-7 h-7 rounded-full bg-bg-card border border-bg-border flex items-center justify-center text-sm">
                 {e}
               </div>

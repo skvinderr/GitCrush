@@ -42,6 +42,23 @@ model User {
   // Relations
   swipesGiven     Swipe[]   @relation("SwipesGiven")
   swipesReceived  Swipe[]   @relation("SwipesReceived")
+  matches1        Match[]   @relation("MatchesUser1")
+  matches2        Match[]   @relation("MatchesUser2")
+}
+
+model Match {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  user1Id             String   @db.ObjectId
+  user2Id             String   @db.ObjectId
+  compatibilityScore  Int
+  compatExplanation   String
+  createdAt           DateTime @default(now())
+  dateRepoUrl         String?  // Feature 9 placeholder
+
+  user1               User     @relation("MatchesUser1", fields: [user1Id], references: [id])
+  user2               User     @relation("MatchesUser2", fields: [user2Id], references: [id])
+
+  @@unique([user1Id, user2Id])
 }
 
 model Swipe {
