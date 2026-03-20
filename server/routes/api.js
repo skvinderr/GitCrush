@@ -205,6 +205,51 @@ router.post("/swipe", isAuthenticated, async (req, res) => {
   }
 });
 
+// DELETE /api/swipes/last — undo the most recent swipe
+router.delete("/swipes/last", isAuthenticated, async (req, res) => {
+  try {
+    const swiperId = req.user.id;
+
+    // Find the most recent swipe by this user
+    const lastSwipe = await prisma.swipe.findFirst({
+      where: { swiperId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!lastSwipe) {
+      return res.status(404).json({ error: "No swipe found to undo" });
+    }
+
+    // If it was a mutual match, we need to carefully rollback the Match and the other user's swipe flag
+    if (lastSwipe.isMutualMatch) {
+      // 1. Identify uid1 and uid2 for the Match table
+      const uid1 = swiperId < lastSwipe.targetUserId ? swiperId : lastSwipe.targetUserId;
+      const uid2 = swiperId < lastSwipe.targetUserId ? lastSwipe.targetUserId : swiperId;
+
+      // 2. Delete the Match
+      await prisma.match.deleteMany({
+        where: { user1Id: uid1, user2Id: uid2 },
+      });
+
+      // 3. Update the other user's swipe to no longer be a mutual match
+      await prisma.swipe.updateMany({
+        where: { swiperId: lastSwipe.targetUserId, targetUserId: swiperId },
+        data: { isMutualMatch: false }
+      });
+    }
+
+    // Delete the swipe itself
+    await prisma.swipe.delete({
+      where: { id: lastSwipe.id }
+    });
+
+    res.json({ success: true, targetUserId: lastSwipe.targetUserId });
+  } catch (err) {
+    console.error("Undo swipe error:", err);
+    res.status(500).json({ error: "Failed to undo swipe" });
+  }
+});
+
 // GET /api/matches — fetch all mutual matches for the user
 router.get("/matches", isAuthenticated, async (req, res) => {
   try {

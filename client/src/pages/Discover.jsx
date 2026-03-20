@@ -376,6 +376,7 @@ export default function Discover() {
   const [loading, setLoading] = useState(true);
   const [showMatch, setShowMatch] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [swipeHistory, setSwipeHistory] = useState([]);
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -406,8 +407,12 @@ export default function Discover() {
   }, [fetchDiscover]);
 
   const handleSwipe = async (direction, targetId) => {
-    // Optimistically remove from state
+    // Optimistically remove from state and push to history
+    const swipedUser = profiles.find((p) => p.id === targetId);
     setProfiles((prev) => prev.filter(p => p.id !== targetId));
+    if (swipedUser) {
+      setSwipeHistory((prev) => [...prev, swipedUser]);
+    }
 
     try {
       const res = await fetch("http://localhost:5000/api/swipe", {
@@ -423,6 +428,24 @@ export default function Discover() {
       }
     } catch (err) {
       console.error("Swipe failed", err);
+    }
+  };
+
+  const handleUndo = async () => {
+    if (swipeHistory.length === 0) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/swipes/last", {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (res.ok) {
+        const lastUser = swipeHistory[swipeHistory.length - 1];
+        setSwipeHistory((prev) => prev.slice(0, -1));
+        setProfiles((prev) => [lastUser, ...prev]);
+        setShowMatch(false); // Just in case a match modal was open
+      }
+    } catch (err) {
+      console.error("Undo swipe failed", err);
     }
   };
 
@@ -504,6 +527,17 @@ export default function Discover() {
         setFilters={setFilters} 
         applyFilters={fetchDiscover} 
       />
+
+      {/* Undo Button */}
+      {swipeHistory.length > 0 && (
+        <button
+          onClick={handleUndo}
+          title="Undo last swipe"
+          className="absolute bottom-6 right-6 z-30 p-4 bg-white border-4 border-black text-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-brand-pink hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all rounded-full flex items-center justify-center pointer-events-auto"
+        >
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+        </button>
+      )}
     </div>
   );
 }
