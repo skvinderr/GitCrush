@@ -533,9 +533,10 @@ export default function Discover() {
         <button
           onClick={handleUndo}
           title="Undo last swipe"
-          className="absolute bottom-6 right-6 z-30 p-4 bg-white border-4 border-black text-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-brand-pink hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all rounded-full flex items-center justify-center pointer-events-auto"
+          className="absolute bottom-6 right-6 z-30 px-6 py-3 bg-white border-4 border-black text-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-brand-pink hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all flex items-center gap-3 font-black uppercase tracking-widest text-lg pointer-events-auto"
         >
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+          Undo Swipe
         </button>
       )}
     </div>
