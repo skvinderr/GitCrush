@@ -54,33 +54,33 @@ function ConfessionCard({ confession, currentUserId, onUpdate }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} 
-      className="bg-bg-card border border-bg-border rounded-[2rem] p-6 shadow-xl mb-6 relative overflow-hidden"
+      className="bg-white border-4 border-black p-8 shadow-[8px_8px_0_rgba(0,0,0,1)] mb-8 relative overflow-hidden"
     >
       <div className="flex items-center gap-4 mb-4">
         <img 
           src={confession.user.avatarUrl} 
           alt={confession.user.username} 
-          className="w-12 h-12 rounded-full border border-bg-border ring-2 ring-brand-purple/20 bg-bg-base"
+          className="w-14 h-14 border-4 border-black bg-white shadow-[2px_2px_0_rgba(0,0,0,1)]"
         />
         <div className="flex-1">
-          <h4 className={`font-bold ${confession.isAnonymous ? 'text-brand-purple' : 'text-text-primary'}`}>
-            {confession.isAnonymous ? "Anonymous Developer" : `@${confession.user.username}`}
+          <h4 className={`font-black text-lg uppercase tracking-tight ${confession.isAnonymous ? 'text-brand-purple' : 'text-black'}`}>
+            {confession.isAnonymous ? "Anonymous User" : `@${confession.user.username}`}
           </h4>
-          <span className="text-xs text-text-muted font-mono">{timeFormatter(confession.createdAt)}</span>
+          <span className="text-sm text-black font-bold font-mono">{timeFormatter(confession.createdAt)}</span>
         </div>
         <button 
            onClick={handleReport}
-           className={`text-xs px-3 py-1.5 rounded-full border border-bg-border transition-colors ${reported ? 'text-red-500 bg-red-500/10' : 'text-text-muted hover:text-white hover:border-red-500/50'}`}
+           className={`text-xs px-3 py-1.5 border-2 border-black font-black uppercase tracking-widest transition-all shadow-[2px_2px_0_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none ${reported ? 'text-white bg-black' : 'text-black bg-white hover:bg-red-500 hover:text-white'}`}
         >
           {reported ? 'Reported' : 'Report 🚩'}
         </button>
       </div>
 
-      <p className="text-text-primary text-lg leading-relaxed mb-6 whitespace-pre-wrap">
+      <p className="text-black text-xl font-bold leading-relaxed mb-8 whitespace-pre-wrap border-l-4 border-black pl-4">
         {confession.text}
       </p>
 
-      <div className="flex flex-wrap gap-2 pt-4 border-t border-bg-border/50">
+      <div className="flex flex-wrap gap-3 pt-6 border-t-4 border-black border-dashed">
         {["💀", "🔥", "👀", "✅", "🚀"].map(emoji => {
           const reactors = reactions[emoji] || [];
           const hasReacted = reactors.includes(currentUserId);
@@ -88,14 +88,14 @@ function ConfessionCard({ confession, currentUserId, onUpdate }) {
             <button
               key={emoji}
               onClick={() => handleReact(emoji)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-all duration-200 ${
+              className={`flex items-center gap-2 px-4 py-2 border-2 border-black text-base font-black transition-all shadow-[4px_4px_0_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none ${
                 hasReacted 
-                  ? "bg-brand-pink/20 border-brand-pink/50 text-white" 
-                  : "bg-bg-base border-bg-border text-text-secondary hover:border-text-muted"
+                  ? "bg-brand-pink text-white border-black" 
+                  : "bg-white text-black hover:bg-brand-yellow"
               }`}
             >
-              <span>{emoji}</span>
-              <span className="font-bold">{reactors.length}</span>
+              <span className="text-lg">{emoji}</span>
+              <span>{reactors.length}</span>
             </button>
           )
         })}
@@ -176,69 +176,71 @@ export default function Confessions() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-base py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brand-peach/20 py-12 px-4 sm:px-6 lg:px-8 border-l-4 border-black">
       <div className="max-w-2xl mx-auto">
         <div className="mb-10 text-center">
-          <h1 className="text-4xl font-black text-white tracking-tight mb-2 flex items-center justify-center gap-3">
-            <span className="text-4xl">🤫</span>
+          <h1 className="text-5xl font-black text-black tracking-tighter mb-4 flex items-center justify-center gap-3 uppercase">
+            <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤫</span>
             Tech Confessions
           </h1>
-          <p className="text-text-secondary text-lg">Confess your dev sins. Judgment-free zone.*</p>
-          <p className="text-text-muted text-xs mt-1">*Just kidding, we will all silently judge you.</p>
+          <p className="text-black font-bold text-xl uppercase tracking-widest">Confess your dev sins. Judgment-free zone.*</p>
+          <p className="text-black font-bold text-sm mt-2 bg-brand-yellow inline-block px-3 py-1 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] -rotate-2">*Just kidding, we will all silently judge you.</p>
         </div>
 
         {/* Post Form */}
-        <div className="bg-gradient-to-br from-bg-card to-bg-base border border-brand-purple/30 rounded-[2rem] p-6 shadow-2xl shadow-brand-purple/5 mb-12">
+        <div className="bg-brand-purple border-4 border-black p-8 shadow-[8px_8px_0_rgba(0,0,0,1)] mb-12 relative">
           <textarea
-            className="w-full bg-[#1e1e1e] border border-bg-border rounded-xl p-4 font-mono text-sm text-gray-300 focus:ring-1 focus:ring-brand-purple focus:border-brand-purple resize-none placeholder:text-text-muted"
+            className="w-full bg-white border-4 border-black p-4 font-mono text-base font-bold text-black focus:outline-none shadow-[4px_4px_0_rgba(0,0,0,1)] resize-none placeholder:text-black/50"
             rows={4}
             placeholder="I once dropped production database because..."
             value={text}
             onChange={(e) => setText(e.target.value)}
             maxLength={280}
           />
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-4">
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer group">
+          <div className="flex justify-between items-start mt-6 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-3 cursor-pointer group bg-white border-2 border-black px-4 py-2 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-brand-yellow transition-colors">
                 <input 
                   type="checkbox" 
                   checked={isAnonymous} 
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="w-5 h-5 rounded border-bg-border text-brand-purple focus:ring-brand-purple bg-bg-base"
+                  className="w-5 h-5 border-2 border-black text-black focus:ring-0 cursor-pointer"
                 />
-                <span className={`text-sm font-bold transition-colors ${isAnonymous ? 'text-brand-purple' : 'text-text-muted group-hover:text-text-secondary'}`}>
-                  {isAnonymous ? "🎭 Post Anonymously" : "👤 Post Publicly"}
+                <span className={`text-sm font-black uppercase tracking-widest text-black`}>
+                  {isAnonymous ? "🎭 Anonymous" : "👤 Public"}
                 </span>
               </label>
-              <span className={`text-xs font-mono font-bold ${text.length < 20 ? 'text-red-400' : 'text-text-muted'}`}>
-                {text.length}/280
-              </span>
             </div>
             
-            <button
-              onClick={handlePost}
-              disabled={submitting || text.length < 20 || text.length > 280}
-              className="w-full sm:w-auto px-8 py-3 bg-brand-purple hover:bg-brand-pink text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? "Confessing..." : "Confess"}
-            </button>
+            <div className="flex flex-col items-end gap-2">
+              <span className={`text-sm font-mono font-black border-2 border-black px-3 py-1 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] ${text.length < 20 ? 'text-red-500 bg-red-100' : 'text-black'}`}>
+                {text.length}/280
+              </span>
+              <button
+                onClick={handlePost}
+                disabled={submitting || text.length < 20 || text.length > 280}
+                className="px-8 py-3 bg-brand-yellow border-4 border-black text-black font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+              >
+                {submitting ? "Pushing..." : "Confess"}
+              </button>
+            </div>
           </div>
           {text.length > 0 && text.length < 20 && (
-            <p className="text-red-400 text-xs mt-3 font-medium">Too short to count as a real confession.</p>
+            <p className="text-white bg-black border-2 border-black px-3 py-1 font-bold inline-block text-xs mt-4 uppercase tracking-widest shadow-[2px_2px_0_rgba(0,0,0,1)]">Too short to count as a real confession.</p>
           )}
         </div>
 
         {/* Sort Tabs */}
-        <div className="flex items-center justify-center gap-4 mb-8">
+        <div className="flex items-center justify-center gap-6 mb-12">
           <button 
             onClick={() => setSort("top")}
-            className={`px-6 py-2 rounded-full font-bold transition-colors ${sort === "top" ? "bg-white text-bg-base" : "bg-bg-card text-text-muted hover:text-white"}`}
+            className={`px-8 py-3 font-black text-lg border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "top" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
           >
             🔥 Top Sins
           </button>
           <button 
             onClick={() => setSort("new")}
-            className={`px-6 py-2 rounded-full font-bold transition-colors ${sort === "new" ? "bg-white text-bg-base" : "bg-bg-card text-text-muted hover:text-white"}`}
+            className={`px-8 py-3 font-black text-lg border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "new" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
           >
             ✨ Newest
           </button>
@@ -247,12 +249,12 @@ export default function Confessions() {
         {/* Feed */}
         {loading ? (
           <div className="flex justify-center py-20">
-             <div className="w-10 h-10 border-4 border-brand-purple/20 border-t-brand-purple rounded-full animate-spin"></div>
+             <div className="w-16 h-16 border-4 border-black border-t-brand-purple rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {confessions.length === 0 ? (
-              <p className="text-center text-text-muted py-10">No confessions yet. Be the first to sin.</p>
+              <p className="text-center font-black text-black uppercase tracking-wider bg-white py-10 border-4 border-black shadow-[8px_8px_0_rgba(0,0,0,1)]">No confessions yet. Be the first to sin.</p>
             ) : (
               confessions.map((c) => (
                 <ConfessionCard key={c.id} confession={c} currentUserId={user.id} onUpdate={updateConfessionInList} />
@@ -260,10 +262,10 @@ export default function Confessions() {
             )}
 
             {hasMore && confessions.length > 0 && (
-              <div className="pt-6 pb-20 flex justify-center">
+              <div className="pt-8 pb-24 flex justify-center">
                 <button 
                   onClick={handleLoadMore}
-                  className="px-6 py-2 rounded-full border border-bg-border text-text-muted hover:text-white font-bold transition-colors"
+                  className="px-10 py-4 border-4 border-black bg-white text-black font-black uppercase tracking-widest shadow-[8px_8px_0_rgba(0,0,0,1)] hover:bg-brand-yellow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xl"
                 >
                   Load More Sins 👇
                 </button>

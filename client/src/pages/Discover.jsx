@@ -45,23 +45,23 @@ function MatchOverlay({ onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg-base/90 backdrop-blur-xl p-6"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-pink/90 backdrop-blur-sm p-6"
     >
       <motion.div 
         initial={{ scale: 0.5, y: 50 }}
         animate={{ scale: 1, y: 0 }}
         transition={{ type: "spring", bounce: 0.6 }}
-        className="text-center"
+        className="text-center bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-12 rounded-3xl"
       >
-        <div className="text-8xl mb-6 drop-shadow-2xl">🎉</div>
-        <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500 mb-4 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]">
+        <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🎉</div>
+        <h1 className="text-4xl md:text-5xl font-black text-black mb-4 uppercase tracking-tight">
           Merge Request Approved
         </h1>
-        <p className="text-xl text-text-secondary mb-10">You both swiped right! It's a mutual match.</p>
+        <p className="text-xl text-black font-bold mb-10">You both swiped right! It's a mutual match.</p>
         
         <button 
           onClick={onClose}
-          className="btn-primary text-lg px-8 py-4 shadow-xl hover:scale-105 transition-transform"
+          className="btn-primary text-xl px-12 py-5 uppercase tracking-wide"
         >
           Keep Swiping
         </button>
@@ -86,12 +86,12 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
           <motion.div
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-sm bg-bg-card border-l border-bg-border shadow-2xl z-50 p-6 overflow-y-auto"
+            className="fixed top-0 right-0 h-full w-full max-w-sm bg-white border-l-4 border-black shadow-[-8px_0px_0px_0px_rgba(0,0,0,1)] z-50 p-6 overflow-y-auto"
           >
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-bold text-text-primary flex items-center gap-2"><span>🎛️</span> Filters</h2>
-              <button onClick={onClose} className="p-2 bg-bg-base rounded-full hover:bg-bg-border/50 text-text-muted hover:text-text-primary transition-colors">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            <div className="flex justify-between items-center mb-8 border-b-4 border-black pb-4">
+              <h2 className="text-2xl font-black text-black flex items-center gap-2 uppercase tracking-tight"><span>🎛️</span> Filters</h2>
+              <button onClick={onClose} className="p-2 bg-brand-yellow border-2 border-black rounded-sm shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all font-black text-black">
+                ✕
               </button>
             </div>
 
@@ -145,10 +145,10 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
                           if (isSelected) setFilters({ ...filters, langs: filters.langs.filter(l => l !== lang) });
                           else if (filters.langs.length < 3) setFilters({ ...filters, langs: [...filters.langs, lang] });
                         }}
-                        className={`px-3 py-1.5 rounded-full text-xs font-mono font-semibold transition-all border ${
+                        className={`px-3 py-1.5 rounded-sm text-xs font-mono font-black transition-all border-2 border-black ${
                           isSelected 
-                            ? "bg-brand-pink text-white border-brand-pink shadow-[0_0_10px_rgba(233,30,140,0.5)]" 
-                            : "bg-bg-base text-text-muted border-bg-border hover:border-brand-pink/50 hover:text-text-primary"
+                            ? "bg-brand-pink text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" 
+                            : "bg-white text-text-muted hover:bg-brand-yellow hover:text-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                         }`}
                       >
                         {lang}
@@ -237,7 +237,7 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
 
   return (
     <motion.div
-      className="absolute top-0 w-full max-w-[420px] bg-bg-card border border-bg-border rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[75vh] max-h-[800px] touch-none"
+      className="absolute top-0 w-full max-w-[420px] bg-white border-4 border-black rounded-[2rem] overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col h-[75vh] max-h-[800px] touch-none"
       style={{ zIndex, x, y, rotate, scale: swipeCardScale }}
       animate={controls}
       drag={isFront ? true : false}
@@ -247,26 +247,25 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
       layout
     >
       {/* Swipe Overlays */}
-      <motion.div style={{ opacity: crushOpacity }} className="absolute inset-0 bg-green-500/20 backdrop-blur-[2px] z-50 flex items-center justify-center pointer-events-none">
-        <div className="border-4 border-green-500 text-green-500 font-black text-4xl p-4 rounded-xl rotate-12 bg-bg-base/80">CRUSH</div>
+      <motion.div style={{ opacity: crushOpacity }} className="absolute inset-0 bg-brand-green/80 z-50 flex items-center justify-center pointer-events-none">
+        <div className="border-8 border-black text-black font-black text-6xl px-8 py-4 bg-white rotate-12 shadow-[8px_8px_0_rgba(0,0,0,1)]">CRUSH</div>
       </motion.div>
-      <motion.div style={{ opacity: passOpacity }} className="absolute inset-0 bg-red-500/20 backdrop-blur-[2px] z-50 flex items-center justify-center pointer-events-none">
-        <div className="border-4 border-red-500 text-red-500 font-black text-4xl p-4 rounded-xl -rotate-12 bg-bg-base/80">PASS</div>
+      <motion.div style={{ opacity: passOpacity }} className="absolute inset-0 bg-red-400/80 z-50 flex items-center justify-center pointer-events-none">
+        <div className="border-8 border-black text-black font-black text-6xl px-8 py-4 bg-white -rotate-12 shadow-[8px_8px_0_rgba(0,0,0,1)]">PASS</div>
       </motion.div>
-      <motion.div style={{ opacity: superOpacity }} className="absolute inset-0 bg-brand-pink/20 backdrop-blur-[2px] z-50 flex items-center justify-center pointer-events-none">
-        <div className="border-4 border-brand-pink text-brand-pink font-black text-4xl p-4 rounded-xl -rotate-6 bg-bg-base/80">SUPER STAR</div>
+      <motion.div style={{ opacity: superOpacity }} className="absolute inset-0 bg-brand-pink/80 z-50 flex items-center justify-center pointer-events-none">
+        <div className="border-8 border-black text-black font-black text-5xl px-8 py-4 bg-brand-yellow -rotate-6 shadow-[8px_8px_0_rgba(0,0,0,1)] text-center tracking-tighter leading-none uppercase">Super<br/>Star</div>
       </motion.div>
 
       {/* Top Header - Avatar & Basic Info */}
-      <div className="relative p-6 pt-8 bg-bg-base/30 shrink-0 border-b border-bg-border">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="relative p-6 pt-8 shrink-0 border-b-4 border-black bg-brand-yellow/30">
         <div className="flex gap-4 items-center relative z-10">
-          <img src={profile.avatarUrl} alt={profile.username} className="w-20 h-20 rounded-full border-2 border-bg-border shadow-md pointer-events-none" draggable={false} />
+          <img src={profile.avatarUrl} alt={profile.username} className="w-20 h-20 rounded-2xl border-4 border-black object-cover shadow-[4px_4px_0_rgba(0,0,0,1)] bg-white pointer-events-none" draggable={false} />
           <div>
-            <h2 className="text-2xl font-black text-text-primary leading-none">@{profile.username}</h2>
-            {profile.location && <p className="text-sm text-text-muted mt-1">📍 {profile.location}</p>}
+            <h2 className="text-3xl font-black text-black leading-none break-all">@{profile.username}</h2>
+            {profile.location && <p className="text-sm font-bold text-text-secondary mt-1 tracking-tight">📍 {profile.location}</p>}
             {profile.personalityType && (
-              <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full border border-brand-purple/20 bg-brand-purple/10 text-[10px] font-bold text-brand-purple-soft uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 border-2 border-black bg-brand-purple text-xs font-bold text-black uppercase tracking-wider shadow-[2px_2px_0_rgba(0,0,0,1)]">
                 <span>🎭</span> {profile.personalityType}
               </div>
             )}
@@ -275,27 +274,27 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
       </div>
 
       {/* Match Score Bar */}
-      <div className="h-1.5 w-full bg-bg-base relative shrink-0">
+      <div className="h-2 w-full bg-white relative shrink-0 border-b-4 border-black">
         <div className={`absolute top-0 left-0 h-full bg-gradient-to-r ${scoreColor}`} style={{ width: `${profile.matchScore || 0}%` }} />
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-5 scrollbar-hide bg-bg-card relative">
-        <div className="flex justify-between items-end mb-5">
-           <div className="flex gap-4 font-mono text-sm text-text-secondary">
-             <div className="flex flex-col"><span className="text-text-primary font-bold">{profile.repos}</span><span className="text-[10px] text-text-muted uppercase tracking-widest">Repos</span></div>
-             <div className="flex flex-col"><span className="text-text-primary font-bold">{profile.totalStars}</span><span className="text-[10px] text-text-muted uppercase tracking-widest">Stars</span></div>
-             <div className="flex flex-col"><span className="text-text-primary font-bold">{profile.followers}</span><span className="text-[10px] text-text-muted uppercase tracking-widest">Follows</span></div>
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide bg-white relative">
+        <div className="flex justify-between items-end mb-6">
+           <div className="flex gap-4 font-mono text-sm text-black">
+             <div className="flex flex-col items-center"><span className="text-xl font-black">{profile.repos}</span><span className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Repos</span></div>
+             <div className="flex flex-col items-center"><span className="text-xl font-black">{profile.totalStars}</span><span className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Stars</span></div>
+             <div className="flex flex-col items-center"><span className="text-xl font-black">{profile.followers}</span><span className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Follows</span></div>
            </div>
            
-           <div className="text-right">
-              <div className="text-3xl font-black text-text-primary leading-none">{profile.matchScore}%</div>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest font-bold mt-1">Match</div>
+           <div className="text-right border-4 border-black bg-brand-green px-3 py-1 shadow-[4px_4px_0_rgba(0,0,0,1)] -rotate-3">
+              <div className="text-3xl font-black text-black leading-none">{profile.matchScore}%</div>
+              <div className="text-[10px] text-black uppercase tracking-widest font-bold mt-1">Match</div>
            </div>
         </div>
 
         {profile.matchReason && (
-          <div className="mb-5 p-3 rounded-xl bg-bg-base border border-bg-border/50 text-sm italic text-text-primary">
+          <div className="mb-6 p-4 bg-brand-peach/30 border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] text-sm font-bold text-black italic">
             " {profile.matchReason} "
           </div>
         )}
@@ -347,24 +346,24 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
       </div>
 
       {/* Action Buttons */}
-      <div className="p-4 bg-bg-base/30 border-t border-bg-border flex justify-evenly shrink-0 pb-6">
+      <div className="p-4 bg-brand-blue/30 border-t-4 border-black flex justify-evenly shrink-0 pb-6">
         <button 
           onClick={() => isFront && controls.start({ x: -500, transition: { duration: 0.3 } }).then(() => onSwipe("left", profile.id))}
-          className="w-14 h-14 rounded-full bg-bg-card border border-bg-border flex items-center justify-center text-red-500 hover:bg-red-500/10 hover:border-red-500 shadow-xl transition-colors z-20"
+          className="w-16 h-16 rounded-full bg-white border-4 border-black flex items-center justify-center text-red-500 font-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-brand-yellow active:translate-y-1 active:translate-x-1 active:shadow-none transition-all z-20"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={4} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         <button 
           onClick={() => isFront && controls.start({ y: -500, transition: { duration: 0.3 } }).then(() => onSwipe("super", profile.id))}
-          className="w-10 h-10 mt-2 rounded-full bg-bg-card border border-bg-border flex items-center justify-center text-brand-pink hover:bg-brand-pink/10 hover:border-brand-pink shadow-xl transition-colors z-20"
+          className="w-12 h-12 mt-2 rounded-full bg-brand-pink border-4 border-black flex items-center justify-center text-white shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-brand-yellow active:translate-y-1 active:translate-x-1 active:shadow-none transition-all z-20"
         >
-          <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+          <svg className="w-6 h-6 fill-current text-white stroke-black stroke-2" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
         </button>
         <button 
           onClick={() => isFront && controls.start({ x: 500, transition: { duration: 0.3 } }).then(() => onSwipe("right", profile.id))}
-          className="w-14 h-14 rounded-full bg-bg-card border border-bg-border flex items-center justify-center text-green-500 hover:bg-green-500/10 hover:border-green-500 shadow-xl transition-colors z-20"
+          className="w-16 h-16 rounded-full bg-brand-green border-4 border-black flex items-center justify-center text-black font-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-brand-yellow active:translate-y-1 active:translate-x-1 active:shadow-none transition-all z-20"
         >
-          <svg className="w-6 h-6 fill-current" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg>
+          <svg className="w-8 h-8 fill-current stroke-black stroke-2" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg>
         </button>
       </div>
     </motion.div>
@@ -447,9 +446,9 @@ export default function Discover() {
       {/* Floating Filter Button */}
       <button 
         onClick={() => setDrawerOpen(true)}
-        className="absolute top-6 right-6 z-30 p-3 bg-bg-card/80 backdrop-blur-md rounded-2xl border border-bg-border shadow-2xl hover:bg-bg-border/50 transition-colors text-text-secondary hover:text-text-primary"
+        className="absolute top-6 right-6 z-30 p-3 bg-brand-yellow border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-white hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all text-black font-black"
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
         {(filters.intents.length > 0 || filters.langs.length > 0 || filters.exp !== "Any") && (
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
             <span className="animate-ping pos-absolute inline-flex h-full w-full rounded-full bg-brand-pink opacity-75"></span>

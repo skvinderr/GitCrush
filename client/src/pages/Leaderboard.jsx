@@ -6,32 +6,32 @@ function LeaderboardRow({ rank, title, subtitle, avatarUrl, stat, profileUrl }) 
   const isTop3 = rank <= 3;
   const badges = ["🏆", "🥈", "🥉"];
   const colors = [
-    "bg-yellow-500/20 text-yellow-500 border-yellow-500/50 shadow-yellow-500/20",
-    "bg-gray-300/20 text-gray-300 border-gray-300/50 shadow-gray-300/20",
-    "bg-amber-700/20 text-amber-600 border-amber-700/50 shadow-amber-700/20"
+    "bg-brand-yellow text-black border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]",
+    "bg-gray-200 text-black border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]",
+    "bg-brand-peach text-black border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]"
   ];
 
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: rank * 0.05 }}
-      className={`flex items-center justify-between p-4 mb-3 rounded-2xl border bg-bg-card transition-all ${isTop3 ? 'border-brand-pink/30 hover:border-brand-pink' : 'border-bg-border hover:border-bg-border/80'}`}
+      className={`flex items-center justify-between p-4 mb-4 border-4 border-black bg-white shadow-[4px_4px_0_rgba(0,0,0,1)] transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_rgba(0,0,0,1)]`}
     >
       <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-lg border shadow-lg ${isTop3 ? colors[rank - 1] : 'bg-bg-base text-text-muted border-bg-border'}`}>
+        <div className={`w-12 h-12 flex items-center justify-center font-black text-xl ${isTop3 ? colors[rank - 1] : 'bg-white text-black border-4 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]'}`}>
           {isTop3 ? badges[rank - 1] : `#${rank}`}
         </div>
-        <img src={avatarUrl} alt="avatar" className="w-12 h-12 rounded-full border border-bg-border" />
+        <img src={avatarUrl} alt="avatar" className="w-14 h-14 border-4 border-black bg-white shadow-[2px_2px_0_rgba(0,0,0,1)]" />
         <div>
-          <h4 className="font-bold text-white leading-tight">{title}</h4>
-          {subtitle && <p className="text-xs text-text-muted">{subtitle}</p>}
+          <h4 className="font-black text-black leading-tight uppercase tracking-tight text-lg">{title}</h4>
+          {subtitle && <p className="text-xs font-bold text-black uppercase tracking-widest">{subtitle}</p>}
         </div>
       </div>
       <div className="flex items-center gap-6">
         <div className="text-right">
-          <p className="text-xl font-black text-brand-pink font-mono">{stat}</p>
+          <p className="text-2xl font-black text-black font-mono uppercase">{stat}</p>
         </div>
         {profileUrl && (
-          <a href={profileUrl} target="_blank" rel="noreferrer" className="hidden sm:block px-4 py-2 rounded-xl border border-bg-border text-xs font-bold hover:bg-white hover:text-black transition-colors">
+          <a href={profileUrl} target="_blank" rel="noreferrer" className="hidden sm:flex btn-primary px-4 py-2 text-xs items-center gap-1">
             Profile ↗
           </a>
         )}
@@ -76,17 +76,17 @@ function MatchSubmitModal({ onClose, matches }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-bg-card border border-brand-pink/30 rounded-[2rem] p-6 shadow-2xl z-10">
-        <h3 className="text-2xl font-black text-white mb-2">Submit a Merge 🏛️</h3>
-        <p className="text-sm text-text-secondary mb-6">Built something with a GitCrush match? Immortalize it in the Hall of Merges.</p>
+      <div className="relative w-full max-w-md bg-brand-peach/50 border-4 border-black rounded-none p-8 shadow-[12px_12px_0_rgba(0,0,0,1)] z-10">
+        <h3 className="text-3xl font-black text-black mb-2 uppercase tracking-tight flex items-center justify-between">Submit a Merge 🏛️ <button onClick={onClose} className="text-xl font-black mb-2 hover:scale-125 transition-transform">X</button></h3>
+        <p className="text-sm font-bold text-black mb-8 border-l-4 border-black pl-3 bg-white py-2">Built something with a GitCrush match? Immortalize it in the Hall of Merges.</p>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <label className="block text-xs font-bold text-text-muted uppercase mb-2">Select Match</label>
+            <label className="block text-xs font-black text-black uppercase tracking-widest mb-2">Select Match</label>
             <select 
               value={selectedMatch} 
               onChange={e => setSelectedMatch(e.target.value)} 
-              className="w-full bg-[#1e1e1e] border border-bg-border rounded-xl px-4 py-3 text-sm focus:border-brand-pink focus:ring-1 focus:ring-brand-pink"
+              className="w-full bg-white border-4 border-black px-4 py-3 text-sm font-bold text-black shadow-[4px_4px_0_rgba(0,0,0,1)] focus:outline-none"
             >
               <option value="" disabled>-- Pick a match --</option>
               {matches.filter(m => m.dateRepoUrl).map(m => (
@@ -99,24 +99,24 @@ function MatchSubmitModal({ onClose, matches }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-text-muted uppercase mb-2">How you met / What you built</label>
+            <label className="block text-xs font-black text-black uppercase tracking-widest mb-2">How you met / What you built</label>
             <textarea
-              className="w-full bg-[#1e1e1e] border border-bg-border rounded-xl p-4 text-sm focus:ring-1 focus:ring-brand-pink focus:border-brand-pink resize-none"
+              className="w-full bg-white border-4 border-black p-4 text-sm font-bold text-black shadow-[4px_4px_0_rgba(0,0,0,1)] focus:outline-none resize-none"
               rows={3}
               placeholder="Matched connecting over our mutual hatred of CSS. We built..."
               value={story}
               onChange={e => setStory(e.target.value)}
               maxLength={200}
             />
-            <div className="text-right text-xs text-text-muted mt-1">{story.length}/200</div>
+            <div className={`text-right text-xs font-black mt-2 font-mono uppercase ${story.length >= 200 ? 'text-red-600' : 'text-black'}`}>{story.length}/200</div>
           </div>
           
           <button 
              onClick={handleSubmit} 
              disabled={!selectedMatch || !story || submitting}
-             className="w-full btn-primary py-3 px-6 mt-4 font-bold shadow-lg shadow-brand-pink/20 disabled:opacity-50"
+             className="w-full btn-primary py-4 px-6 mt-6 font-black shadow-[4px_4px_0_rgba(0,0,0,1)] text-lg uppercase tracking-widest disabled:opacity-50 hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
           >
-            {submitting ? "Submitting..." : "Submit to Hall of Merges"}
+            {submitting ? "Submitting..." : "Submit to Merges"}
           </button>
         </div>
       </div>
@@ -161,33 +161,33 @@ export default function Leaderboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-bg-base py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brand-blue/20 py-12 px-4 sm:px-6 lg:px-8 border-l-4 border-black">
       <div className="max-w-7xl mx-auto flex flex-col xl:flex-row gap-12">
         
         {/* SECTION 1: LEADERBOARDS (Left Sidebar on Desktop) */}
         <div className="xl:w-5/12 shrink-0">
           <div className="sticky top-24">
-            <h2 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
-              <span className="text-4xl">🏆</span> Weekly Leaders
+            <h2 className="text-5xl font-black text-black mb-4 flex items-center gap-3 tracking-tighter uppercase">
+              <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🏆</span> Weekly Leaders
             </h2>
-            <p className="text-text-secondary text-sm mb-6">Top developers in the community. Resets every Monday.</p>
+            <p className="text-black font-bold text-lg mb-8 bg-white border-2 border-black inline-block px-4 py-2 shadow-[4px_4px_0_rgba(0,0,0,1)] -rotate-1">Top developers in the community. Resets Monday.</p>
             
-            <div className="bg-bg-card p-1 rounded-xl mb-6 inline-flex border border-bg-border shadow-inner">
+            <div className="bg-white border-4 border-black p-2 mb-8 inline-flex shadow-[8px_8px_0_rgba(0,0,0,1)] gap-2 flex-wrap sm:flex-nowrap">
               <button 
                 onClick={() => setActiveTab("stars")} 
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'stars' ? 'bg-bg-base text-brand-pink shadow-sm' : 'text-text-muted hover:text-white'}`}
+                className={`px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'stars' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
               >
-                ⭐ Most Stars
+                ⭐ Stars
               </button>
               <button 
                 onClick={() => setActiveTab("active")} 
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'active' ? 'bg-bg-base text-brand-pink shadow-sm' : 'text-text-muted hover:text-white'}`}
+                className={`px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'active' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
               >
-                💻 Most Active
+                💻 Active
               </button>
               <button 
                 onClick={() => setActiveTab("compatible")} 
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'compatible' ? 'bg-bg-base text-brand-pink shadow-sm' : 'text-text-muted hover:text-white'}`}
+                className={`px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'compatible' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
               >
                 💕 Compatible
               </button>
@@ -238,60 +238,58 @@ export default function Leaderboard() {
         </div>
 
         {/* SECTION 2: HALL OF MERGES (Main Area) */}
-        <div className="xl:border-l xl:border-bg-border xl:pl-12 flex-1">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+        <div className="xl:border-l-4 xl:border-black xl:pl-12 flex-1 pt-12 xl:pt-0">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
             <div>
-              <h2 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
-                <span className="text-4xl">🏛️</span> Hall of Merges
+              <h2 className="text-5xl font-black text-black mb-4 flex items-center gap-3 tracking-tighter uppercase">
+                <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🏛️</span> Hall of Merges
               </h2>
-              <p className="text-text-secondary text-sm">Legendary developer couples who actually shipped something together.</p>
+              <p className="text-black font-bold text-lg bg-brand-peach border-2 border-black inline-block px-4 py-2 shadow-[4px_4px_0_rgba(0,0,0,1)] rotate-1">Legendary developers who shipped together.</p>
             </div>
             <button 
               onClick={() => setShowSubmitModal(true)}
-              className="px-6 py-2.5 bg-brand-pink/10 border border-brand-pink text-brand-pink hover:bg-brand-pink hover:text-white font-bold rounded-xl transition-colors shadow-lg shadow-brand-pink/10"
+              className="btn-primary px-8 py-4 text-lg uppercase tracking-widest shadow-[4px_4px_0_rgba(0,0,0,1)] font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-4 border-black border-dashed bg-brand-pink text-white"
             >
               Submit a Merge ✨
             </button>
           </div>
 
           {hallOfMerges.length === 0 ? (
-            <div className="py-20 text-center border-2 border-dashed border-bg-border rounded-[2rem]">
-              <span className="text-4xl mb-4 block">👻</span>
-              <p className="text-text-muted font-bold">No legendary merges yet. Be the first.</p>
+            <div className="py-24 mt-8 text-center border-4 border-black border-dashed bg-white shadow-[8px_8px_0_rgba(0,0,0,1)]">
+              <span className="text-6xl mb-6 block drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">👻</span>
+              <p className="text-black text-xl font-black uppercase tracking-widest">No legendary merges yet. Be the first.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {hallOfMerges.map((merge) => (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                   key={merge.id} 
-                  className="bg-bg-card border border-brand-pink/20 rounded-3xl p-6 shadow-xl relative overflow-hidden group"
+                  className="bg-white border-4 border-black p-8 shadow-[8px_8px_0_rgba(0,0,0,1)] relative group transition-all hover:translate-y-1 hover:translate-x-1 hover:shadow-none"
                 >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/5 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700"></div>
-                  
-                  <div className="flex justify-between items-start mb-6 relative">
+                  <div className="flex justify-between items-start mb-8 relative">
                     <div className="flex items-center">
-                      <img src={merge.match.user1.avatarUrl} className="w-14 h-14 rounded-full border-2 border-bg-card ring-2 ring-brand-pink/50 bg-bg-base z-10" alt="u1" />
-                      <img src={merge.match.user2.avatarUrl} className="w-14 h-14 rounded-full border-2 border-bg-card ring-2 ring-brand-pink/50 bg-bg-base -ml-4 z-0" alt="u2" />
+                      <img src={merge.match.user1.avatarUrl} className="w-16 h-16 border-4 border-black bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] z-10 rounded-[4px] object-cover" alt="u1" />
+                      <img src={merge.match.user2.avatarUrl} className="w-16 h-16 border-4 border-black bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] -ml-6 z-0 rounded-[4px] object-cover" alt="u2" />
                     </div>
                     <div className="text-right">
-                       <span className="text-xs font-bold text-brand-pink uppercase tracking-widest bg-brand-pink/10 px-3 py-1 rounded-full">Merged</span>
+                       <span className="text-xs font-black text-black font-mono uppercase tracking-widest bg-brand-yellow border-2 border-black px-3 py-1 shadow-[2px_2px_0_rgba(0,0,0,1)]">Merged</span>
                     </div>
                   </div>
 
-                  <h4 className="text-lg font-black text-white leading-tight mb-3">
-                    @{merge.match.user1.username} <span className="text-brand-pink text-xs px-1">×</span> @{merge.match.user2.username}
+                  <h4 className="text-xl font-black text-black leading-tight mb-4 uppercase tracking-tighter">
+                    @{merge.match.user1.username} <span className="text-brand-pink text-3xl font-normal mx-1 leading-none align-middle">×</span> @{merge.match.user2.username}
                   </h4>
                   
-                  <p className="text-text-secondary text-sm mb-6 leading-relaxed italic border-l-2 border-bg-border pl-3">
+                  <p className="text-black font-bold text-base mb-8 leading-relaxed italic border-l-4 border-black pl-4 my-2">
                     "{merge.story}"
                   </p>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-bg-border/50">
-                    <span className="text-xs text-text-muted font-bold font-mono">
-                      ⭐ {merge.match.user1.totalStars + merge.match.user2.totalStars} combined stars
+                  <div className="flex items-center justify-between pt-6 border-t-4 border-black border-dashed">
+                    <span className="text-sm text-black font-black font-mono uppercase">
+                      ⭐ {merge.match.user1.totalStars + merge.match.user2.totalStars} stars
                     </span>
-                    <a href={merge.repoUrl} target="_blank" rel="noreferrer" className="text-xs font-bold px-4 py-1.5 bg-white text-black hover:bg-brand-pink hover:text-white rounded-lg transition-colors">
+                    <a href={merge.repoUrl} target="_blank" rel="noreferrer" className="btn-primary text-xs px-6 py-2 shadow-[2px_2px_0_rgba(0,0,0,1)]">
                       View Repo
                     </a>
                   </div>

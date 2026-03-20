@@ -184,36 +184,36 @@ export default function Chat() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-bg-base relative">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-white relative">
       
       {/* Header */}
-      <div className="h-16 shrink-0 bg-bg-card border-b border-bg-border flex items-center px-6 justify-between z-10">
+      <div className="h-16 shrink-0 bg-brand-yellow/30 border-b-4 border-black flex items-center px-6 justify-between z-10">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate("/matches")} className="w-8 h-8 rounded-full hover:bg-bg-border flex items-center justify-center text-text-muted transition-colors mr-2">
+          <button onClick={() => navigate("/matches")} className="w-8 h-8 font-black text-black border-2 border-transparent hover:border-black hover:bg-white transition-all flex items-center justify-center mr-2 shadow-[2px_2px_0_transparent] hover:shadow-[2px_2px_0_rgba(0,0,0,1)]">
             ←
           </button>
           {partner && (
             <>
               <div className="relative">
-                <img src={partner.avatarUrl} alt={partner.username} className="w-10 h-10 rounded-full border border-bg-border object-cover" />
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-bg-card rounded-full"></span>
+                <img src={partner.avatarUrl} alt={partner.username} className="w-10 h-10 rounded-[4px] border-2 border-black object-cover bg-white" />
+                <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-brand-green border-2 border-black"></span>
               </div>
               <div>
-                <h3 className="text-text-primary font-bold leading-tight max-w-[150px] sm:max-w-xs truncate">@{partner.username}</h3>
-                <p className="text-xs font-mono text-green-400">Online — building</p>
+                <h3 className="text-black font-black leading-tight max-w-[150px] sm:max-w-xs truncate uppercase tracking-tight">@{partner.username}</h3>
+                <p className="text-xs font-bold font-mono text-black uppercase tracking-widest">Online — building</p>
               </div>
             </>
           )}
         </div>
         {partner && (
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             {matchData?.dateRepoUrl && (
-               <a href={matchData.dateRepoUrl} target="_blank" rel="noreferrer" className="hidden sm:flex px-4 py-1.5 rounded-full border border-bg-border text-xs text-brand-pink hover:text-white hover:border-brand-pink transition-colors font-bold tracking-wide items-center gap-1 bg-brand-pink/5">
-                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
+               <a href={matchData.dateRepoUrl} target="_blank" rel="noreferrer" className="hidden sm:flex px-4 py-1.5 border-2 border-black bg-brand-pink text-white font-black hover:bg-brand-yellow hover:text-black shadow-[2px_2px_0_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all tracking-wide items-center gap-2">
+                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
                  Date Repo
                </a>
             )}
-            <a href={`https://github.com/${partner.username}`} target="_blank" rel="noreferrer" className="px-4 py-1.5 rounded-full border border-bg-border text-xs text-text-secondary hover:text-white hover:border-brand-pink transition-colors font-bold tracking-wide flex items-center">
+            <a href={`https://github.com/${partner.username}`} target="_blank" rel="noreferrer" className="px-4 py-1.5 border-2 border-black bg-white text-black font-black hover:bg-brand-yellow shadow-[2px_2px_0_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all tracking-wide flex items-center">
               View GitHub ↗
             </a>
           </div>
@@ -230,14 +230,14 @@ export default function Chat() {
             const isDateRepoSystem = msg.content.includes("Your date repo is live!");
             return (
               <div key={msg.id} className="flex justify-center w-full my-6">
-                <div className={`border px-6 py-3 rounded-2xl flex items-center gap-3 backdrop-blur-sm max-w-lg text-center shadow-lg ${isDateRepoSystem ? 'bg-brand-pink/10 border-brand-pink/50' : 'bg-bg-card/50 border-bg-border'}`}>
-                  <span className="text-2xl animate-bounce">{isDateRepoSystem ? '🚀' : '🧊'}</span>
+                <div className={`border-4 px-6 py-4 flex items-center gap-3 backdrop-blur-sm max-w-lg text-center shadow-[4px_4px_0_rgba(0,0,0,1)] ${isDateRepoSystem ? 'bg-brand-yellow border-black' : 'bg-white border-black'}`}>
+                  <span className="text-2xl animate-bounce drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">{isDateRepoSystem ? '🚀' : '🧊'}</span>
                   <div className="text-sm">
-                    <span className="text-brand-pink font-bold">{isDateRepoSystem ? 'DATE REPO: ' : 'ICEBREAKER: '}</span>
+                    <span className="text-black font-black uppercase tracking-widest">{isDateRepoSystem ? 'DATE REPO: ' : 'ICEBREAKER: '}</span>
                     {isDateRepoSystem ? (
-                      <span className="text-text-primary italic"><RepoLinkDetector text={msg.content} /></span>
+                      <span className="text-black font-bold italic"><RepoLinkDetector text={msg.content} /></span>
                     ) : (
-                      <span className="text-text-primary italic">"{msg.content.replace("You just matched! Here's an icebreaker: ", "")}"</span>
+                      <span className="text-black font-bold italic">"{msg.content.replace("You just matched! Here's an icebreaker: ", "")}"</span>
                     )}
                   </div>
                 </div>
@@ -249,9 +249,9 @@ export default function Chat() {
             const isInviteFromMe = msg.senderId === user.id;
             return (
               <div key={msg.id} className="flex justify-center w-full my-6">
-                <div className="bg-gradient-to-br from-bg-card to-bg-base border border-brand-pink/30 px-6 py-5 rounded-2xl flex flex-col items-center gap-3 backdrop-blur-sm max-w-sm text-center shadow-lg shadow-brand-pink/10">
-                  <span className="text-3xl">🤝</span>
-                  <div className="text-sm text-text-primary px-4 font-bold">
+                <div className="bg-brand-blue/30 border-4 border-black px-6 py-5 flex flex-col items-center gap-3 max-w-sm text-center shadow-[8px_8px_0_rgba(0,0,0,1)] -rotate-1">
+                  <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤝</span>
+                  <div className="text-sm text-black px-4 font-black uppercase tracking-wide">
                     {msg.content}
                   </div>
                   {!isInviteFromMe && !matchData?.dateRepoUrl && (
@@ -268,16 +268,16 @@ export default function Chat() {
                            }
                          } catch (e) {}
                        }}
-                       className="btn-primary py-2 px-6 mt-2 text-sm shadow-xl shadow-brand-pink/20"
+                       className="btn-primary py-3 px-6 mt-2 text-sm uppercase tracking-widest"
                      >
                        Accept & Create Sandbox
                      </button>
                   )}
                   {isInviteFromMe && !matchData?.dateRepoUrl && (
-                     <p className="text-xs text-brand-pink font-bold mt-2 animate-pulse">Waiting for them to accept...</p>
+                     <p className="text-xs text-black font-black mt-2 animate-pulse uppercase tracking-widest border-2 border-black bg-brand-yellow px-2 py-1 shadow-[2px_2px_0_rgba(0,0,0,1)]">Waiting for them to accept...</p>
                   )}
                   {matchData?.dateRepoUrl && (
-                     <p className="text-xs text-green-400 font-bold mt-2 border border-green-500/30 px-3 py-1 bg-green-500/10 rounded-full">Accepted! Sandbox generated.</p>
+                     <p className="text-xs text-black font-black mt-2 border-2 border-black px-3 py-1 bg-brand-green shadow-[2px_2px_0_rgba(0,0,0,1)] uppercase tracking-widest">Accepted! Sandbox generated.</p>
                   )}
                 </div>
               </div>
@@ -304,10 +304,10 @@ export default function Chat() {
               
               <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
                 {/* The Bubble */}
-                <div className={`relative px-4 py-2.5 shadow-sm
-                  ${msg.type === 'code' ? 'bg-[#282c34] text-gray-300 w-full overflow-hidden' : 
-                    isMe ? 'bg-gradient-to-br from-brand-pink/90 to-brand-purple/90 text-white' : 'bg-bg-card text-text-primary'}
-                  ${isMe ? 'rounded-[20px] rounded-br-[4px]' : 'rounded-[20px] rounded-bl-[4px] border border-bg-border'}`}
+                <div className={`relative px-4 py-3 shadow-[4px_4px_0_rgba(0,0,0,1)] border-2 border-black
+                  ${msg.type === 'code' ? 'bg-black text-white w-full overflow-hidden' : 
+                    isMe ? 'bg-brand-pink text-white font-bold' : 'bg-white text-black font-bold'}
+                  ${isMe ? 'rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm' : 'rounded-tr-2xl rounded-tl-2xl rounded-br-2xl rounded-bl-sm'}`}
                 >
                   {/* Content Renderer */}
                   {msg.type === 'text' && (
@@ -316,13 +316,13 @@ export default function Chat() {
 
                   {msg.type === 'code' && (
                     <div className="flex flex-col">
-                      <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
-                        <span className="text-xs font-mono text-gray-500 uppercase">{msg.language || 'code'}</span>
+                      <div className="flex justify-between items-center mb-2 pb-2 border-b-2 border-gray-700">
+                        <span className="text-xs font-mono font-bold text-brand-yellow uppercase">{msg.language || 'code'}</span>
                         <button 
                           onClick={() => navigator.clipboard.writeText(msg.content)}
-                          className="text-xs text-gray-500 hover:text-white transition-colors flex items-center gap-1"
+                          className="text-xs text-white bg-gray-800 border-2 border-black px-2 py-1 shadow-[2px_2px_0_rgba(0,0,0,1)] font-bold transition-all hover:bg-white hover:text-black flex items-center gap-1 active:translate-y-0.5 active:translate-x-0.5 active:shadow-none"
                         >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                           Copy
                         </button>
                       </div>
@@ -334,8 +334,8 @@ export default function Chat() {
                   {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                     <div className={`absolute -bottom-4 ${isMe ? 'right-2' : 'left-2'} flex gap-1 z-10`}>
                       {Object.entries(msg.reactions).map(([emoji, users]) => (
-                        <div key={emoji} className="bg-bg-card border border-bg-border rounded-full px-1.5 py-0.5 text-xs flex items-center shadow-md">
-                          {emoji} <span className="ml-1 text-[10px] text-text-muted">{users.length}</span>
+                        <div key={emoji} className="bg-white border-2 border-black px-2 py-0.5 text-xs flex items-center shadow-[2px_2px_0_rgba(0,0,0,1)] font-black text-black">
+                          {emoji} <span className="ml-1 text-[10px] text-gray-500">{users.length}</span>
                         </div>
                       ))}
                     </div>
@@ -369,14 +369,14 @@ export default function Chat() {
       </div>
 
       {/* Input Area */}
-      <div className="shrink-0 bg-bg-base border-t border-bg-border p-4">
+      <div className="shrink-0 bg-brand-blue/30 border-t-4 border-black p-4">
         <form 
-          className="flex items-end gap-3 max-w-4xl mx-auto relative bg-bg-card border border-bg-border rounded-2xl p-2 transition-all focus-within:border-brand-pink/50 focus-within:shadow-[0_0_20px_rgba(233,30,140,0.1)]"
+          className="flex items-end gap-3 max-w-4xl mx-auto relative bg-white border-4 border-black p-2 transition-all focus-within:shadow-[8px_8px_0_rgba(0,0,0,1)] shadow-[4px_4px_0_rgba(0,0,0,1)]"
           onSubmit={(e) => { e.preventDefault(); sendMessage(inputVal); }}
         >
           {/* Action buttons left */}
-          <button type="button" onClick={() => setShowCodeModal(true)} className="p-2 shrink-0 text-text-muted hover:text-brand-pink transition-colors rounded-xl hover:bg-brand-pink/10" title="Send snippet">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+          <button type="button" onClick={() => setShowCodeModal(true)} className="p-2 shrink-0 text-black border-2 border-transparent hover:border-black font-black hover:bg-brand-yellow hover:shadow-[2px_2px_0_rgba(0,0,0,1)] transition-all flex items-center justify-center -rotate-2 hover:rotate-0" title="Send snippet">
+            <svg className="w-6 h-6 stroke-black stroke-2" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
           </button>
 
           {/* Text Area auto-resizing hack */}
@@ -384,7 +384,7 @@ export default function Chat() {
             value={inputVal}
             onChange={handleInputChange}
             placeholder="Commit a message... (paste GitHub URLs for repo cards)"
-            className="flex-1 bg-transparent border-none focus:ring-0 text-text-primary resize-none max-h-32 min-h-[44px] py-3 text-[15px] placeholder:text-text-muted scrollbar-hide"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-black font-bold resize-none max-h-32 min-h-[44px] py-3 text-[15px] placeholder:text-black/50 placeholder:font-bold scrollbar-hide"
             rows={1}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -398,9 +398,9 @@ export default function Chat() {
           <button 
             type="submit" 
             disabled={!inputVal.trim()}
-            className="w-11 h-11 shrink-0 bg-brand-pink rounded-xl flex items-center justify-center text-white disabled:opacity-50 disabled:bg-bg-border transition-all hover:shadow-lg hover:shadow-brand-pink/20"
+            className="w-12 h-12 shrink-0 bg-brand-green border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] flex items-center justify-center text-black disabled:opacity-50 transition-all hover:bg-brand-yellow active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
-            <svg className="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+            <svg className="w-6 h-6 ml-1 stroke-black stroke-2 fill-current" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
            </button>
         </form>
       </div>
@@ -418,14 +418,14 @@ export default function Chat() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
             style={{ position: "fixed", top: reactionMenu.y - 60, left: reactionMenu.x - 100 }}
-            className="bg-bg-card border border-bg-border rounded-full shadow-2xl p-2 flex gap-2 z-50"
+            className="bg-white border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] p-2 flex gap-2 z-50"
             onClick={(e) => e.stopPropagation()}
           >
             {AVAILABLE_REACTIONS.map(emoji => (
               <button 
                 key={emoji} 
                 onClick={() => addReaction(emoji)}
-                className="w-10 h-10 rounded-full hover:bg-bg-base text-xl flex items-center justify-center transition-transform hover:scale-125"
+                className="w-10 h-10 border-2 border-transparent hover:border-black hover:bg-brand-yellow font-black text-xl flex items-center justify-center hover:shadow-[2px_2px_0_rgba(0,0,0,1)] transition-all"
               >
                 {emoji}
               </button>
@@ -473,17 +473,17 @@ function EmbeddedRepoCard({ url }) {
   }, [url]);
 
   return (
-    <div className="my-2 border border-bg-border/50 bg-bg-base/30 rounded-xl overflow-hidden max-w-sm block">
-      <a href={url} target="_blank" rel="noreferrer" className="block p-4 hover:bg-bg-border/20 transition-colors">
+    <div className="my-2 border-4 border-black bg-white shadow-[4px_4px_0_rgba(0,0,0,1)] block w-full max-w-sm">
+      <a href={url} target="_blank" rel="noreferrer" className="block p-4 hover:bg-brand-yellow/50 transition-colors">
         <div className="flex items-center gap-2 mb-2">
-           <svg className="w-4 h-4 text-text-muted shrink-0" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
-           <h4 className="font-bold text-brand-pink text-sm truncate">{data ? data.full_name : url.replace('https://github.com/','')}</h4>
+           <svg className="w-5 h-5 text-black shrink-0" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
+           <h4 className="font-black text-black text-sm truncate uppercase tracking-tight">{data ? data.full_name : url.replace('https://github.com/','')}</h4>
         </div>
         {data && (
           <>
-            <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed mb-3">{data.description}</p>
-            <div className="flex items-center gap-4 text-[10px] text-text-muted font-mono">
-              {data.language && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>{data.language}</span>}
+            <p className="text-xs text-black font-bold line-clamp-2 leading-relaxed mb-3">{data.description}</p>
+            <div className="flex items-center gap-4 text-[10px] text-black font-black font-mono">
+              {data.language && <span className="flex items-center gap-1 border-2 border-black bg-brand-blue px-1 shadow-[2px_2px_0_rgba(0,0,0,1)]">{data.language}</span>}
               <span className="flex items-center gap-1">⭐ {data.stargazers_count}</span>
             </div>
           </>
@@ -509,26 +509,26 @@ function CodeSnippetModal({ onClose, onSend }) {
         initial={{ y: 50, opacity: 0, scale: 0.95 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 20, opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-2xl bg-bg-card border border-bg-border rounded-[2rem] shadow-2xl p-6 flex flex-col z-10 h-[60vh] max-h-[600px]"
+        className="relative w-full max-w-2xl bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 flex flex-col z-10 h-[60vh] max-h-[600px] rounded-none"
       >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold flex items-center gap-2"><span className="text-brand-pink">{'</>'}</span> Send Code Snippet</h3>
-          <select value={lang} onChange={(e)=>setLang(e.target.value)} className="bg-bg-base border border-bg-border text-sm rounded-lg px-3 py-1.5 focus:border-brand-pink focus:ring-0">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-black text-black flex items-center gap-2 uppercase tracking-tight"><span className="text-brand-pink">{'</>'}</span> Send Snippet</h3>
+          <select value={lang} onChange={(e)=>setLang(e.target.value)} className="bg-brand-yellow border-2 border-black text-black font-black text-sm px-3 py-1.5 shadow-[2px_2px_0_rgba(0,0,0,1)] outline-none focus:ring-0">
              {commonLangs.map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}
           </select>
         </div>
         
         <textarea 
           autoFocus
-          className="flex-1 w-full bg-[#1e1e1e] border border-bg-border rounded-xl p-4 font-mono text-sm text-gray-300 focus:ring-1 focus:ring-brand-pink focus:border-brand-pink resize-none mb-4"
+          className="flex-1 w-full bg-black border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] p-4 font-mono text-sm text-white focus:outline-none focus:ring-0 resize-none mb-6"
           placeholder="Paste your code here..."
           value={code}
           onChange={(e) => setCode(e.target.value)}
         />
         
         <div className="flex justify-end gap-3 shrink-0">
-          <button onClick={onClose} className="px-5 py-2 rounded-xl text-text-muted hover:text-white transition-colors text-sm font-bold">Cancel</button>
-          <button onClick={() => onSend(code, lang)} disabled={!code.trim()} className="btn-primary px-6 py-2">Push Code</button>
+          <button onClick={onClose} className="px-6 py-2 border-2 border-black font-black text-black hover:bg-brand-yellow shadow-[2px_2px_0_rgba(0,0,0,1)] transition-all">Cancel</button>
+          <button onClick={() => onSend(code, lang)} disabled={!code.trim()} className="btn-primary px-8 py-2">Push</button>
         </div>
       </motion.div>
     </div>
@@ -597,29 +597,28 @@ function ChallengeCard({ matchId, partner, socket }) {
   };
 
   return (
-    <div className="w-full max-w-3xl bg-bg-card border-2 border-brand-pink/30 rounded-[2rem] shadow-2xl overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-pink to-brand-purple" />
-      <div className="p-6 border-b border-bg-border bg-bg-base/30 text-center">
-        <h3 className="text-xl font-black text-white flex items-center justify-center gap-2">
-          <span>⚔️</span> Pair Programming Icebreaker
+    <div className="w-full max-w-3xl bg-white border-4 border-black shadow-[12px_12px_0_rgba(0,0,0,1)] overflow-hidden relative">
+      <div className="p-6 border-b-4 border-black bg-brand-yellow/30 text-center">
+        <h3 className="text-2xl font-black text-black flex items-center justify-center gap-2 uppercase tracking-wide">
+          <span className="drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">⚔️</span> Pair Programming Icebreaker
         </h3>
-        <p className="text-brand-pink font-mono text-sm mt-3 bg-brand-pink/10 p-4 rounded-xl border border-brand-pink/20">
+        <p className="text-black font-mono font-bold text-sm mt-4 bg-white p-4 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]">
           {prompt}
         </p>
       </div>
 
-      <div className="p-6">
+      <div className="p-6 border-4 border-transparent">
         {!hasSubmitted ? (
           // STATE 1: Unsubmitted (Writing Code)
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-text-muted uppercase tracking-widest">Your Solution</span>
-              <select value={lang} onChange={(e)=>setLang(e.target.value)} className="bg-bg-base border border-bg-border text-xs rounded-md px-2 py-1 focus:border-brand-pink focus:ring-0">
+              <span className="text-xs font-black text-black uppercase tracking-widest">Your Solution</span>
+              <select value={lang} onChange={(e)=>setLang(e.target.value)} className="bg-brand-pink border-2 border-black text-black font-black shadow-[2px_2px_0_rgba(0,0,0,1)] text-xs px-2 py-1 outline-none focus:ring-0">
                  {["javascript", "typescript", "python", "rust", "go"].map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}
               </select>
             </div>
             <textarea
-              className="w-full h-40 bg-[#1e1e1e] border-none rounded-xl p-4 font-mono text-sm text-gray-300 focus:ring-1 focus:ring-brand-pink resize-none"
+              className="w-full h-40 bg-black border-4 border-black p-4 font-mono text-sm text-white focus:outline-none shadow-[4px_4px_0_rgba(0,0,0,1)] resize-none"
               placeholder="Write your one-liner here..."
               value={code}
               onChange={e => setCode(e.target.value)}
@@ -627,38 +626,38 @@ function ChallengeCard({ matchId, partner, socket }) {
             <button 
               onClick={handleSubmit} 
               disabled={submitting || !code.trim()} 
-              className="btn-primary py-3 flex justify-center items-center gap-2"
+              className="btn-primary py-4 mt-2 flex justify-center items-center gap-2 tracking-widest"
             >
               {submitting ? "Pushing..." : "Submit to Reveal Partner's Code"}
             </button>
           </div>
         ) : !isRevealed ? (
           // STATE 2: Waiting for partner
-          <div className="py-12 flex flex-col items-center justify-center text-center">
-            <div className="w-12 h-12 border-4 border-brand-pink/20 border-t-brand-pink rounded-full animate-spin mb-4"></div>
-            <h4 className="text-lg font-bold text-white mb-2">Code Pushed! 🚀</h4>
-            <p className="text-text-secondary">
-              Waiting for <span className="text-brand-pink font-bold">@{partner?.username}</span> to submit their solution...
+          <div className="py-16 flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 border-4 border-black border-t-brand-pink rounded-full animate-spin mb-6"></div>
+            <h4 className="text-3xl font-black text-black mb-2 uppercase tracking-tight">Code Pushed! 🚀</h4>
+            <p className="text-black font-bold text-lg">
+              Waiting for <span className="text-brand-pink bg-black px-2 shadow-[2px_2px_0_rgba(0,0,0,1)]">@{partner?.username}</span> to submit their solution...
             </p>
           </div>
         ) : (
           // STATE 3: Revealed (Side by Side)
-          <div className="challenge-reveal flex flex-col md:flex-row gap-4">
+          <div className="challenge-reveal flex flex-col md:flex-row gap-6">
             {/* User 1's Code */}
-            <div className="flex-1 bg-bg-base rounded-xl border border-bg-border overflow-hidden flex flex-col">
-               <div className="bg-bg-card p-2 border-b border-bg-border flex items-center justify-between">
-                 <span className="text-xs font-bold text-text-primary px-2">Solution 1</span>
+            <div className="flex-1 bg-white border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] flex flex-col">
+               <div className="bg-brand-yellow/30 p-3 border-b-4 border-black flex items-center justify-between">
+                 <span className="text-sm font-black text-black px-2 uppercase tracking-widest">Solution 1</span>
                </div>
-               <pre className="p-4 m-0 text-sm overflow-x-auto bg-[#282c34] flex-1">
+               <pre className="p-4 m-0 text-sm overflow-x-auto bg-black flex-1">
                  <code className={`language-${challenge.user1Language || 'javascript'}`}>{challenge.user1Solution}</code>
                </pre>
             </div>
             {/* User 2's Code */}
-            <div className="flex-1 bg-bg-base rounded-xl border border-bg-border overflow-hidden flex flex-col">
-               <div className="bg-bg-card p-2 border-b border-bg-border flex items-center justify-between">
-                 <span className="text-xs font-bold text-text-primary px-2">Solution 2</span>
+            <div className="flex-1 bg-white border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] flex flex-col">
+               <div className="bg-brand-yellow/30 p-3 border-b-4 border-black flex items-center justify-between">
+                 <span className="text-sm font-black text-black px-2 uppercase tracking-widest">Solution 2</span>
                </div>
-               <pre className="p-4 m-0 text-sm overflow-x-auto bg-[#282c34] flex-1">
+               <pre className="p-4 m-0 text-sm overflow-x-auto bg-black flex-1">
                  <code className={`language-${challenge.user2Language || 'javascript'}`}>{challenge.user2Solution}</code>
                </pre>
             </div>
