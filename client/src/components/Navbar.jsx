@@ -7,7 +7,6 @@ const navItems = [
   { label: "Leaderboard", to: "/leaderboard" },
   { label: "Matches",  to: "/matches"  },
   { label: "Chat",     to: "/chat"     },
-  { label: "Profile",  to: "/profile"  },
 ];
 
 export default function Navbar() {
@@ -41,7 +40,10 @@ export default function Navbar() {
           {/* User + Logout */}
           <div className="flex items-center gap-4">
             {user && (
-              <div className="flex items-center gap-2 bg-brand-yellow/30 px-3 py-1 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <button 
+                onClick={() => navigate("/profile")}
+                className="flex items-center gap-2 bg-brand-yellow/30 px-3 py-1 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-brand-yellow/50 hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+              >
                 <img
                   src={user.avatarUrl}
                   alt={user.username}
@@ -50,7 +52,7 @@ export default function Navbar() {
                 <span className="hidden sm:block text-sm font-black text-black">
                   @{user.username}
                 </span>
-              </div>
+              </button>
             )}
             <button
               onClick={logout}
