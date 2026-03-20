@@ -1,267 +1,381 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Profile() {
-  const { user, setUser } = useAuth();
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const [isEditingBio, setIsEditingBio] = useState(false);
-  const [customBioText, setCustomBioText] = useState(user?.customBio || "");
-  const [bioExpanded, setBioExpanded] = useState(false);
+  const { user: authUser, setUser } = useAuth();
+  const { username } = useParams();
+  const navigate = useNavigate();
 
-  const handleSync = async () => {
-    setIsSyncing(true);
-    try {
-      const res = await fetch("http://localhost:5000/api/sync-profile", { method: "POST", credentials: "include" });
-      const updatedUser = await res.json();
-      if (!updatedUser.error) {
-        setUser(updatedUser);
-      }
-    } catch (e) {
-      console.error("Sync failed", e);
-    } finally {
-      setIsSyncing(false);
+  const isOwnProfile = !username || username === authUser?.username;
+  const [profileData, setProfileData] = useState(null);
+  const [isMatched, setIsMatched] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [savingField, setSavingField] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+
+  useEffect(() => {
+    if (isOwnProfile) {
+      if (!authUser) { setLoading(false); return; }
+      fetch("http://localhost:5000/api/me", { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) {
+            setProfileData(data);
+            setUser(data);
+          }
+        })
+        .finally(() => setLoading(false));
+    } else {
+      fetch(`http://localhost:5000/api/users/${username}`, { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) {
+            setProfileData(data.user);
+            setIsMatched(data.isMatched);
+          } else {
+            console.error(data.error);
+          }
+        })
+        .finally(() => setLoading(false));
     }
-  };
+  }, [username, isOwnProfile, authUser]);
 
-  const handleRegenerate = async () => {
-    setIsRegenerating(true);
+  const handleSyncGit = async () => {
+    setSyncing(true);
     try {
-      const res = await fetch("http://localhost:5000/api/regenerate-bio", { method: "POST", credentials: "include" });
-      const updatedUser = await res.json();
-      if (!updatedUser.error) {
-        setUser(updatedUser);
-      } else {
-        alert(updatedUser.error); // Show error like "Maximum 5 regenerations reached"
-      }
-    } catch (e) {
-      console.error("Regen failed", e);
-    } finally {
-      setIsRegenerating(false);
-    }
-  };
-
-  const handleSaveBio = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/me/bio", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch("http://localhost:5000/api/sync-profile", {
+        method: "POST",
         credentials: "include",
-        body: JSON.stringify({ customBio: customBioText }),
       });
       const updatedUser = await res.json();
       if (!updatedUser.error) {
+        setProfileData((prev) => ({...prev, ...updatedUser}));
         setUser(updatedUser);
-        setIsEditingBio(false);
       }
-    } catch (e) {
-      console.error("Save generic bio failed", e);
+    } catch(err) {
+      console.error(err);
     }
+    setSyncing(false);
   };
 
-  if (!user) return null;
+  const handleRegenBio = async () => {
+    setSavingField('bio');
+    try {
+      const res = await fetch("http://localhost:5000/api/regenerate-bio", {
+        method: "POST",
+        credentials: "include",
+      });
+      const updatedUser = await res.json();
+      if (!updatedUser.error) {
+        setProfileData((prev) => ({...prev, ...updatedUser}));
+        setUser(updatedUser);
+      }
+    } catch(err) { console.error(err); }
+    setSavingField(null);
+  };
+
+  const updateProfile = async (updates) => {
+    setSavingField(Object.keys(updates)[0]);
+    try {
+      const res = await fetch("http://localhost:5000/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setProfileData((prev) => ({ ...prev, ...updates }));
+        setUser((prev) => ({ ...prev, ...updates }));
+      }
+    } catch (err) { console.error(err); }
+    setSavingField(null);
+  };
+
+  const handleDelete = async () => {
+    if (deleteConfirm !== authUser.username) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/me", {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setUser(null);
+        navigate("/");
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  if (loading) return <div className="p-8 text-center text-xl font-mono">Loading Profile...</div>;
+  if (!profileData) return <div className="p-8 text-center text-xl font-mono">Profile not found.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      {/* Header Profile Section */}
-      <div className="flex flex-col md:flex-row items-center gap-8 mb-12 bg-white border-4 border-black rounded-[2rem] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 relative overflow-hidden">
-        <img
-          src={user.avatarUrl}
-          alt={user.username}
-          className="w-32 h-32 rounded-2xl border-4 border-black bg-white shadow-[4px_4px_0_rgba(0,0,0,1)] z-10"
-        />
-
-        <div className="flex-1 text-center md:text-left z-10 w-full">
-          <h1 className="text-4xl font-black text-black mb-2 uppercase break-all">@{user.username}</h1>
-          
-          {/* Bio Section */}
-          <div className="mb-4 relative">
-            {isEditingBio ? (
-              <div className="flex flex-col gap-2 max-w-lg mx-auto md:mx-0 mt-2">
-                <textarea 
-                  className="w-full bg-white border-4 border-black p-3 text-sm text-black font-bold focus:outline-none shadow-[4px_4px_0_rgba(0,0,0,1)] min-h-[100px]"
-                  value={customBioText}
-                  onChange={(e) => setCustomBioText(e.target.value)}
-                  placeholder="Write your own catchy bio..."
-                />
-                <div className="flex gap-2 justify-end mt-2">
-                  <button onClick={() => setIsEditingBio(false)} className="text-xs font-black text-black hover:text-brand-pink px-3 py-1 underline">Cancel</button>
-                  <button onClick={handleSaveBio} className="btn-primary text-sm px-6 py-2 shadow-[2px_2px_0_rgba(0,0,0,1)] rounded-none">Save Bio</button>
-                </div>
-              </div>
-            ) : (
-              <div className="max-w-xl mx-auto md:mx-0 mt-2">
-                <p className={`text-black font-bold text-base italic leading-relaxed border-l-4 border-brand-yellow pl-4 ${!bioExpanded && 'line-clamp-2'}`}>
-                  "{user.customBio || user.aiBio || user.bio || "Still syncing a bio..."}"
-                </p>
-                <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
-                  {!user.customBio && user.aiBio && (
-                     <span className="text-[10px] uppercase tracking-widest text-black font-black border-2 border-black bg-brand-yellow shadow-[2px_2px_0_rgba(0,0,0,1)] px-2 py-1">✨ AI Generated</span>
-                  )}
-                  {(user.customBio || user.aiBio) && (
-                    <button onClick={() => setBioExpanded(!bioExpanded)} className="text-xs font-black text-brand-pink hover:text-black hover:underline uppercase">
-                      {bioExpanded ? "Show less" : "Read more"}
-                    </button>
-                  )}
-                  <button onClick={() => { setCustomBioText(user.customBio || user.aiBio || user.bio || ""); setIsEditingBio(true); }} className="text-xs font-black text-black hover:text-brand-pink underline uppercase">
-                    {user.customBio ? "Edit Bio" : "Write my own"}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Personality Badge */}
-          {user.personalityType && (
-            <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 border-2 border-black bg-brand-purple shadow-[2px_2px_0_rgba(0,0,0,1)] text-sm font-black text-black uppercase tracking-tight">
-              <span>🎭</span>
-              {user.personalityType}
+    <div className="max-w-4xl mx-auto p-6 font-mono space-y-8 pb-32">
+      {/* 1. HEADER */}
+      <section className="bg-bg-dark border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-center gap-8">
+        <div className="flex-shrink-0 relative">
+          <img src={profileData.avatarUrl} alt="avatar" className="w-32 h-32 md:w-48 md:h-48 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-sm object-cover bg-brand-pink" />
+          {profileData.totalStars > 100 && (
+            <div className="absolute -top-4 -right-4 bg-brand-yellow text-black border-4 border-black px-2 py-1 font-black transform rotate-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              PRO
             </div>
           )}
-          
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-black text-black font-mono">
-            <span className="flex items-center gap-1">📦 {user.repos} repos</span>
-            <span className="flex items-center gap-1">👥 {user.followers} followers</span>
-            <span className="flex items-center gap-1">⭐ {user.totalStars} total stars</span>
-          </div>
         </div>
-
-        <div className="flex flex-col gap-4 z-10 w-full sm:w-auto mt-6 md:mt-0 items-stretch">
-          <button
-            onClick={handleSync}
-            disabled={isSyncing}
-            className="btn-primary"
-          >
-            {isSyncing ? "Syncing..." : "🔄 Refresh Data"}
-          </button>
+        
+        <div className="flex-1 space-y-4 text-center md:text-left">
+          <h1 className="text-4xl font-black text-brand-cyan">{profileData.username}</h1>
+          <div className="text-slate-300 min-h-[60px]">
+            {isOwnProfile ? (
+              <textarea 
+                className="w-full bg-black/50 border-2 border-slate-600 p-2 text-white disabled:opacity-50"
+                value={profileData.customBio !== null ? profileData.customBio : profileData.aiBio || ""}
+                onChange={(e) => setProfileData(prev => ({...prev, customBio: e.target.value}))}
+                onBlur={(e) => updateProfile({ customBio: e.target.value })}
+                placeholder="Write your custom bio..."
+                rows={3}
+              />
+            ) : (
+              <p className="p-2 border-l-4 border-brand-pink bg-black/50 italic text-sm">{profileData.customBio || profileData.aiBio}</p>
+            )}
+          </div>
           
-          {(!user.customBio && user.bioRegenerations < 5) && (
-            <button
-              onClick={handleRegenerate}
-              disabled={isRegenerating || isSyncing}
-              className="px-6 py-3 border-4 border-black bg-brand-yellow font-black text-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-white hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all disabled:opacity-50 flex items-center justify-center gap-2 uppercase tracking-wide"
-            >
-              🪄 {isRegenerating ? "Generating..." : `Regenerate Bio (${5 - (user.bioRegenerations || 0)})`}
-            </button>
+          {isOwnProfile && (
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 pt-2">
+              <button onClick={() => navigate('/discover')} className="bg-brand-cyan text-black px-4 py-2 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                Preview My Card
+              </button>
+              <button 
+                onClick={handleSyncGit}
+                disabled={syncing}
+                className="bg-brand-pink text-black px-4 py-2 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50"
+              >
+                {syncing ? 'Syncing...' : 'Sync GitHub'}
+              </button>
+            </div>
+          )}
+
+          {!isOwnProfile && (
+            <div className="pt-2">
+              {isMatched ? (
+                <div className="space-y-4">
+                  <div className="bg-brand-yellow text-black px-4 py-2 font-black border-2 border-black inline-block shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    Matched! ??
+                  </div>
+                  <button onClick={() => navigate('/matches')} className="block bg-brand-cyan text-black px-6 py-2 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                    Open Chat
+                  </button>
+                </div>
+              ) : (
+                <button className="bg-brand-yellow text-black px-6 py-3 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2">
+                  <span>Send a Super Star ?</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* Grid Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Experience Score */}
-        <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col items-center justify-center text-center">
-          <div className="text-black text-xs uppercase tracking-widest font-black mb-2">Exp Score</div>
-          <div className="text-5xl font-black text-black">
-            {user.experienceScore || 0}<span className="text-xl">/10</span>
+      {/* 2. STATS */}
+      {isOwnProfile && profileData.stats && (
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="bg-bg-dark border-4 border-black p-4 text-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <div className="text-4xl font-black text-brand-cyan">{profileData.profileViews}</div>
+            <div className="text-sm uppercase font-bold text-slate-400 mt-2">Profile Views</div>
           </div>
-        </div>
-
-        {/* Longest Streak */}
-        <div className="bg-brand-yellow/30 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col items-center justify-center text-center">
-          <div className="text-black text-xs uppercase tracking-widest font-black mb-2">Longest Streak</div>
-          <div className="text-5xl font-black text-black">
-            {user.longestStreak || 0} <span className="text-2xl text-brand-pink -rotate-12 inline-block">🔥</span>
+          <div className="bg-bg-dark border-4 border-black p-4 text-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <div className="text-4xl font-black text-brand-pink">{profileData.stats.crushesReceived}</div>
+            <div className="text-sm uppercase font-bold text-slate-400 mt-2">Total Crushes</div>
           </div>
-        </div>
-
-        {/* Activity Pattern */}
-        <div className="bg-brand-blue/30 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col items-center justify-center text-center">
-          <div className="text-black text-xs uppercase tracking-widest font-black mb-2">Active Time</div>
-          <div className="text-3xl font-black text-black capitalize mt-2">
-            {user.commitPattern || "Unknown"}
-            {user.commitPattern === "night" ? " 🦉" : " ☕"}
+          <div className="bg-bg-dark border-4 border-black p-4 text-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <div className="text-4xl font-black text-brand-yellow">{profileData.stats.totalMatches}</div>
+            <div className="text-sm uppercase font-bold text-slate-400 mt-2">Total Matches</div>
           </div>
-        </div>
-
-        {/* Current Streak */}
-        <div className="bg-brand-green border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col items-center justify-center text-center">
-          <div className="text-black text-xs uppercase tracking-widest font-black mb-2">Current Streak</div>
-          <div className="text-5xl font-black text-black">
-            {user.currentStreak || 0} <span className="text-2xl">⚡</span>
+          <div className="bg-bg-dark border-4 border-black p-4 text-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <div className="text-4xl font-black text-green-400">{profileData.stats.matchRate}%</div>
+            <div className="text-sm uppercase font-bold text-slate-400 mt-2">Match Rate</div>
           </div>
-        </div>
-      </div>
+        </section>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Languages */}
-        <div className="bg-brand-yellow/30 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-          <h3 className="text-2xl font-black text-black mb-6 flex items-center gap-3 uppercase tracking-tight">
-            <span className="text-black">{'</>'}</span> Top Languages
-          </h3>
-          <div className="space-y-6">
-            {user.languages && user.languages.length > 0 ? (
-              user.languages.map((lang, idx) => (
-                <div key={idx} className="relative">
-                  <div className="flex justify-between text-base mb-2">
-                    <span className="font-black text-black uppercase tracking-wide">{lang.lang}</span>
-                    <span className="text-black font-black font-mono">{lang.pct}%</span>
+      {/* 3. EDIT PROFILE (Only Own) */}
+      {isOwnProfile && (
+        <section className="bg-bg-dark border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6">
+          <div className="flex justify-between items-center bg-brand-yellow text-black px-4 py-2 border-2 border-black">
+            <h2 className="text-2xl font-black">Edit Details</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-slate-400 font-bold mb-2">Intent (Looking for)</label>
+              <select 
+                multiple 
+                className="w-full bg-black/50 border-2 border-slate-600 p-2 text-white h-32"
+                value={profileData.intent || []}
+                onChange={(e) => {
+                  const vals = Array.from(e.target.selectedOptions, option => option.value);
+                  setProfileData(p => ({...p, intent: vals}));
+                }}
+                onBlur={(e) => {
+                  const vals = Array.from(e.target.selectedOptions, option => option.value);
+                  updateProfile({ intent: vals });
+                }}
+              >
+                <option value="Romantic">Romantic</option>
+                <option value="Co-founder">Co-founder</option>
+                <option value="Collaborator">Collaborator</option>
+                <option value="Friendship">Friendship</option>
+              </select>
+              <p className="text-xs text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div>
+                 <label className="block text-slate-400 font-bold mb-2">Experience Level Matching</label>
+                 <select 
+                   className="w-full bg-black/50 border-2 border-slate-600 p-2 text-white"
+                   value={profileData.lookingFor || "Any"}
+                   onChange={(e) => {
+                     setProfileData(p => ({...p, lookingFor: e.target.value}));
+                     updateProfile({ lookingFor: e.target.value });
+                   }}
+                 >
+                   <option value="Any">Any</option>
+                   <option value="Similar to me">Similar to me</option>
+                   <option value="More experienced">More experienced</option>
+                   <option value="Less experienced">Less experienced</option>
+                 </select>
+               </div>
+               
+               <div>
+                  <label className="block text-slate-400 font-bold mb-2">Location</label>
+                  <input type="text" 
+                    className="w-full bg-black/50 border-2 border-slate-600 p-2 text-white" 
+                    placeholder="Earth" 
+                    value={profileData.location || ""}
+                    onChange={(e) => setProfileData(p => ({...p, location: e.target.value}))}
+                    onBlur={(e) => updateProfile({ location: e.target.value })}
+                  />
+               </div>
+
+               <div>
+                 <label className="block text-slate-400 font-bold mb-2">Age (Optional)</label>
+                 <input type="number" 
+                   className="w-full bg-black/50 border-2 border-slate-600 p-2 text-white" 
+                   value={profileData.age || ""}
+                   onChange={(e) => setProfileData(p => ({...p, age: parseInt(e.target.value) || null}))}
+                   onBlur={(e) => updateProfile({ age: parseInt(e.target.value) || null })}
+                 />
+               </div>
+            </div>
+
+            <div className="pt-4 border-t-2 border-slate-800 flex justify-between items-center">
+              <div>
+                <p className="font-bold">Hide Profile</p>
+                <p className="text-sm text-slate-500">Pause from appearing in discover</p>
+              </div>
+              <input type="checkbox" className="w-6 h-6 border-2 border-black accent-brand-pink cursor-pointer" 
+                checked={profileData.isHidden} 
+                onChange={() => updateProfile({ isHidden: !profileData.isHidden })}
+              />
+            </div>
+          </div>
+          
+          <div className="pt-4 border-t-2 border-slate-800">
+             <button 
+                onClick={handleRegenBio} 
+                className="w-full bg-brand-pink text-black px-4 py-3 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 flex justify-center items-center gap-2"
+                disabled={profileData.bioRegenerations >= 5 || savingField === 'bio'}
+              >
+               <span>Regenerate AI Bio</span>
+               <span className="bg-black text-brand-pink px-2 py-0.5 rounded-sm text-xs">
+                 {5 - (profileData.bioRegenerations || 0)} left
+               </span>
+             </button>
+          </div>
+        </section>
+      )}
+
+      {/* 4. REPO VISIBILITY (Only Own) */}
+      {isOwnProfile && (
+        <section className="bg-bg-dark border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex justify-between items-center bg-brand-cyan text-black px-4 py-2 border-2 border-black mb-6">
+            <h2 className="text-2xl font-black">Repo Visibility</h2>
+          </div>
+          
+          <div className="p-4 bg-black/50 border-2 border-brand-yellow mb-6">
+            <p className="text-brand-yellow font-bold">Manage which repositories show up on your card.</p>
+          </div>
+
+          <div className="space-y-4">
+            {(profileData.repos || []).length > 0 ? (
+              profileData.repos.map((repo, idx) => (
+                <div key={repo.id || idx} className="flex justify-between items-center p-4 border-2 border-slate-700 bg-black/50">
+                  <div>
+                    <h3 className="font-bold text-white">{repo.name}</h3>
+                    <p className="text-sm text-slate-400">{repo.description || "No description"}</p>
                   </div>
-                  <div className="w-full h-3 border-2 border-black bg-white overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,1)]">
-                    <div className="h-full bg-brand-pink border-r-2 border-black" style={{ width: `${lang.pct}%` }} />
-                  </div>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <span className="text-sm text-slate-300">Visible</span>
+                    <input 
+                      type="checkbox"
+                      className="w-5 h-5 border-2 border-black accent-brand-cyan"
+                      checked={!repo.hidden}
+                      onChange={async (e) => {
+                        const hidden = !e.target.checked;
+                        try {
+                          const res = await fetch("http://localhost:5000/api/me/repo-visibility", {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ repoId: repo.id || repo.name, hidden }),
+                            credentials: "include",
+                          });
+                          const updated = await res.json();
+                          if (!updated.error) {
+                            setProfileData((prev) => ({ ...prev, repos: updated.repos }));
+                            setUser((prev) => ({ ...prev, repos: updated.repos }));
+                          }
+                        } catch (err) { console.error(err); }
+                      }}
+                    />
+                  </label>
                 </div>
               ))
             ) : (
-              <p className="text-black font-bold">No language data synced yet.</p>
+              <div className="text-slate-400 p-4 border-2 border-slate-700">
+                Sync GitHub to display repositories here.
+              </div>
             )}
           </div>
-        </div>
+        </section>
+      )}
 
-        {/* Topics */}
-        <div className="bg-brand-blue/30 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-          <h3 className="text-2xl font-black text-black mb-6 flex items-center gap-3 uppercase tracking-tight">
-            <span className="text-black">#</span> Fav Topics
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            {user.topics && user.topics.length > 0 ? (
-              user.topics.map((topic, idx) => (
-                <span key={idx} className="tag-pill text-sm font-black text-black uppercase tracking-wider">
-                  {topic}
-                </span>
-              ))
-            ) : (
-              <p className="text-black font-bold">No topics found on public repos.</p>
-            )}
+      {/* 5. DANGER ZONE (Only Own) */}
+      {isOwnProfile && (
+        <section className="border-4 border-red-500 p-8 shadow-[8px_8px_0px_0px_rgba(239,68,68,1)] bg-black/50">
+          <h2 className="text-2xl font-black text-red-500 mb-4 bg-red-950/50 inline-block px-2 border-2 border-red-500">Danger Zone</h2>
+          <p className="text-slate-300 mb-6 font-bold">Deleting your account is permanent. All matches, messages, and swipes will be destroyed.</p>
+          
+          <div className="bg-red-950/20 p-4 border-2 border-red-900 flex flex-col gap-4">
+            <label className="text-sm text-red-400 uppercase font-black">Type your username to confirm</label>
+            <input 
+              type="text" 
+              className="bg-black border-2 border-red-500 p-3 text-white font-bold outline-none focus:border-red-400"
+              placeholder={authUser.username}
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+            />
+            <button 
+              onClick={handleDelete}
+              disabled={deleteConfirm !== authUser.username}
+              className="w-full bg-red-600 text-white font-black py-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              NUKE ACCOUNT
+            </button>
           </div>
-        </div>
-      </div>
-
-      {/* Personality + Red Flags Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-        {/* Personality Card */}
-        {user.personalityType && (
-          <div className="bg-brand-peach border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-            <h3 className="text-2xl font-black text-black mb-4 flex items-center gap-3 uppercase tracking-tight">
-              <span>🎭</span> Dev Archetype
-            </h3>
-            <p className="text-3xl font-black mb-4 text-black uppercase tracking-tighter">
-              {user.personalityType}
-            </p>
-            <p className="text-black font-bold text-base leading-relaxed border-l-4 border-black pl-4">
-              {user.personalityDesc}
-            </p>
-          </div>
-        )}
-
-        {/* Red Flags Card */}
-        {user.redFlags && user.redFlags.length > 0 && (
-          <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-            <h3 className="text-2xl font-black text-black mb-6 flex items-center gap-3 uppercase tracking-tight">
-              <span>🚩</span> Red Flags
-              <span className="text-xs font-bold text-black ml-2 uppercase">(For science)</span>
-            </h3>
-            <ul className="space-y-4">
-              {user.redFlags.map((flag, idx) => (
-                <li key={idx} className="text-base font-black text-white bg-red-500 border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] px-4 py-3 -rotate-1 hover:rotate-0 transition-transform cursor-default">
-                  {flag}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
+        </section>
+      )}
     </div>
   );
 }

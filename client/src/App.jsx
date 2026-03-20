@@ -7,6 +7,7 @@ import Discover     from "./pages/Discover";
 import Matches      from "./pages/Matches";
 import Chat         from "./pages/Chat";
 import Profile      from "./pages/Profile";
+import Settings     from "./pages/Settings";
 import Confessions  from "./pages/Confessions";
 import Leaderboard  from "./pages/Leaderboard";
 import SyncLoader   from "./components/SyncLoader";
@@ -60,6 +61,8 @@ function AppRoutes() {
         <Route path="/confessions" element={<ProtectedRoute><Confessions /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/profile"  element={<ProtectedRoute><Profile  /></ProtectedRoute>} />
+        <Route path="/profile/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="*"         element={<Navigate to="/" replace />} />
       </Routes>
     </>

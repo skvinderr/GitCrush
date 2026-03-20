@@ -40,6 +40,15 @@ model User {
   timezoneOffset  Int?
   createdAt       DateTime  @default(now())
 
+  // New Profile / Settings fields
+  lookingFor      String    @default("Any")
+  age             Int?
+  isHidden        Boolean   @default(false)
+  hiddenRepoIds   String[]  @default([])
+  profileViews    Int       @default(0)
+  hideHeatmap     Boolean   @default(false)
+  hideStats       Boolean   @default(false)
+
   // Relations
   swipesGiven     Swipe[]   @relation("SwipesGiven")
   swipesReceived  Swipe[]   @relation("SwipesReceived")

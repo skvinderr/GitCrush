@@ -21,8 +21,27 @@ const isAuthenticated = async (req, res, next) => {
 };
 
 // GET /api/me — return current user
-router.get("/me", isAuthenticated, (req, res) => {
-  res.json(req.user);
+router.get("/me", isAuthenticated, async (req, res) => {
+  try {
+    const crushes = await prisma.swipe.count({
+      where: { targetUserId: req.user.id, direction: { in: ["right", "super"] } }
+    });
+    const matchesCount = await prisma.match.count({
+      where: { OR: [{ user1Id: req.user.id }, { user2Id: req.user.id }] }
+    });
+    
+    // Add stats to the response directly
+    res.json({
+      ...req.user,
+      stats: {
+        crushesReceived: crushes,
+        totalMatches: matchesCount,
+        matchRate: crushes > 0 ? (matchesCount / crushes * 100).toFixed(1) : 0
+      }
+    });
+  } catch(err) {
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
 });
 
 // POST /api/sync-profile — trigger GitHub metric extraction
@@ -82,6 +101,72 @@ router.put("/me/bio", isAuthenticated, async (req, res) => {
     data: { customBio: customBio.trim().slice(0, 500) },
   });
   res.json(updated);
+});
+
+// PATCH /api/me — update user profile fields
+router.patch("/me", isAuthenticated, async (req, res) => {
+  try {
+    const allowedFields = ['customBio', 'hideHeatmap', 'hideStats', 'intent', 'lookingFor', 'location', 'age', 'isHidden'];
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: "No valid fields provided" });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: req.user.id },
+      data: updateData,
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update profile", details: err.message });
+  }
+});
+
+// PATCH /api/me/repo-visibility — toggle repo visibility
+router.patch("/me/repo-visibility", isAuthenticated, async (req, res) => {
+  try {
+    const { repoId, hidden } = req.body;
+    if (!repoId || hidden === undefined) {
+      return res.status(400).json({ error: "repoId and hidden are required" });
+    }
+
+    // Assuming user.repos is an array of objects
+    const currentRepos = req.user.repos || [];
+    const updatedRepos = currentRepos.map(repo => {
+      // Sometimes repo.id is number, sometimes string, comparing as string is safer
+      if (repo.id.toString() === repoId.toString() || repo.name === repoId) {
+        return { ...repo, hidden };
+      }
+      return repo;
+    });
+
+    const updated = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { repos: updatedRepos },
+    });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update repo visibility" });
+  }
+});
+
+// DELETE /api/me — delete user account
+router.delete("/me", isAuthenticated, async (req, res) => {
+  try {
+    await prisma.user.delete({
+      where: { id: req.user.id },
+    });
+    req.session.destroy();
+    res.json({ success: true, message: "Account deleted" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete account" });
+  }
 });
 
 // GET /api/discover — fetch potential matches (exclude self and already swiped)
@@ -910,6 +995,92 @@ router.post("/hall-of-merges", isAuthenticated, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Failed to submit merge" });
   }
+});
+
+// GET /api/users/:username — fetch public profile
+router.get("/users/:username", isAuthenticated, async (req, res) => {
+  try {
+    const target = await prisma.user.findFirst({
+        where: { username: req.params.username }
+    });
+    if (!target) return res.status(404).json({ error: "User not found" });
+
+    // Ensure it's not hidden unless the current user matched with them
+    const isMatched = await prisma.match.findFirst({
+      where: {
+        OR: [
+          { user1Id: req.user.id, user2Id: target.id },
+          { user1Id: target.id, user2Id: req.user.id }
+        ]
+      }
+    });
+
+    if (target.isHidden && !isMatched && target.id !== req.user.id) {
+        return res.status(404).json({ error: "User not found" });
+    }
+
+    // Increment profile view
+    if (target.id !== req.user.id) {
+        await prisma.user.update({
+            where: { id: target.id },
+            data: { profileViews: { increment: 1 } },
+        });
+    }
+
+    res.json({ user: target, isMatched: !!isMatched });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
+});
+
+// PATCH /api/me — update editable fields
+router.patch("/me", isAuthenticated, async (req, res) => {
+    try {
+        const updatable = ["intent", "lookingFor", "location", "age", "isHidden", "customBio", "hideHeatmap", "hideStats"];
+        const data = {};
+        for (const key of updatable) {
+            if (req.body[key] !== undefined) data[key] = req.body[key];
+        }
+        
+        const updated = await prisma.user.update({
+            where: { id: req.user.id },
+            data
+        });
+        res.json(updated);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to update profile" });
+    }
+});
+
+// PATCH /api/me/repo-visibility — update hidden_repo_ids
+router.patch("/me/repo-visibility", isAuthenticated, async (req, res) => {
+    try {
+        const { hiddenRepoIds } = req.body;
+        if (!Array.isArray(hiddenRepoIds)) return res.status(400).json({error: "Expected array"});
+
+        const updated = await prisma.user.update({
+            where: { id: req.user.id },
+            data: { hiddenRepoIds }
+        });
+        res.json(updated);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to update repos" });
+    }
+});
+
+// DELETE /api/me — hard delete user record
+router.delete("/me", isAuthenticated, async (req, res) => {
+    try {
+        await prisma.user.delete({ where: { id: req.user.id } });
+        req.session.destroy();
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to delete account" });
+    }
 });
 
 module.exports = router;
