@@ -8,6 +8,7 @@ import Matches      from "./pages/Matches";
 import Chat         from "./pages/Chat";
 import Profile      from "./pages/Profile";
 import Confessions  from "./pages/Confessions";
+import Leaderboard  from "./pages/Leaderboard";
 import SyncLoader   from "./components/SyncLoader";
 
 function ProtectedRoute({ children }) {
@@ -57,6 +58,7 @@ function AppRoutes() {
         <Route path="/chat"     element={<ProtectedRoute><Chat     /></ProtectedRoute>} />
         <Route path="/chat/:matchId" element={<ProtectedRoute><Chat     /></ProtectedRoute>} />
         <Route path="/confessions" element={<ProtectedRoute><Confessions /></ProtectedRoute>} />
+        <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/profile"  element={<ProtectedRoute><Profile  /></ProtectedRoute>} />
         <Route path="*"         element={<Navigate to="/" replace />} />
       </Routes>

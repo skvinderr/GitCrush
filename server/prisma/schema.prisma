@@ -23,6 +23,7 @@ model User {
   languages       Json?
   commitPattern   String?
   topics          String[]
+  recentCommits   Int       @default(0)
   totalStars      Int       @default(0)
   experienceScore Int       @default(0)
   longestStreak   Int       @default(0)
@@ -61,6 +62,7 @@ model Match {
   user2               User     @relation("MatchesUser2", fields: [user2Id], references: [id])
   messages            Message[] @relation("MatchMessages")
   challenge           Challenge?
+  hallOfMerge         HallOfMerge?
 
   @@unique([user1Id, user2Id])
 }
@@ -131,4 +133,17 @@ model Confession {
   createdAt    DateTime @default(now())
 
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model HallOfMerge {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  matchId     String   @unique @db.ObjectId
+  user1Id     String   @db.ObjectId
+  user2Id     String   @db.ObjectId
+  story       String
+  repoUrl     String
+  status      String   @default("pending") // 'pending', 'approved'
+  createdAt   DateTime @default(now())
+
+  match       Match    @relation(fields: [matchId], references: [id])
 }

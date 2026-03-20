@@ -738,4 +738,133 @@ router.post("/confessions/:id/report", isAuthenticated, async (req, res) => {
   }
 });
 
+// ─── LEADERBOARD & HALL OF MERGES ENDPOINTS ──────────────────────────────────────
+
+// GET /api/leaderboard — Fetch top community members
+router.get("/leaderboard", isAuthenticated, async (req, res) => {
+  try {
+    const { type } = req.query; // 'stars', 'active', 'compatible'
+
+    if (type === 'stars') {
+      const topStars = await prisma.user.findMany({
+        orderBy: { totalStars: 'desc' },
+        take: 10,
+        select: { id: true, username: true, avatarUrl: true, totalStars: true }
+      });
+      return res.json(topStars);
+    } 
+    
+    if (type === 'active') {
+      const topActive = await prisma.user.findMany({
+        orderBy: { recentCommits: 'desc' },
+        take: 10,
+        select: { id: true, username: true, avatarUrl: true, recentCommits: true }
+      });
+      return res.json(topActive);
+    }
+
+    if (type === 'compatible') {
+      const topMatches = await prisma.match.findMany({
+        orderBy: { compatibilityScore: 'desc' },
+        take: 5,
+        include: {
+          user1: { select: { id: true, username: true, avatarUrl: true } },
+          user2: { select: { id: true, username: true, avatarUrl: true } }
+        }
+      });
+      return res.json(topMatches);
+    }
+
+    res.status(400).json({ error: "Invalid leaderboard type" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch leaderboard" });
+  }
+});
+
+// GET /api/hall-of-merges — Fetch approved merges
+router.get("/hall-of-merges", isAuthenticated, async (req, res) => {
+  try {
+    let merges = await prisma.hallOfMerge.findMany({
+      where: { status: 'approved' },
+      include: {
+        match: {
+          include: {
+            user1: { select: { username: true, avatarUrl: true, totalStars: true } },
+            user2: { select: { username: true, avatarUrl: true, totalStars: true } }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Seed logic if empty
+    if (merges.length === 0) {
+       const fakeMerges = [
+         {
+           id: "fake1", story: "We matched and instantly bonded over our mutual hatred of CSS. Built a CLI tool together instead.", repoUrl: "https://github.com/gitcrush-demo", status: "approved", createdAt: new Date().toISOString(),
+           match: { user1: { username: "FrontendHater", avatarUrl: "https://avatars.githubusercontent.com/u/1?v=4", totalStars: 432 }, user2: { username: "RustEvangelist", avatarUrl: "https://avatars.githubusercontent.com/u/2?v=4", totalStars: 1020 } }
+         },
+         {
+           id: "fake2", story: "Our first date was refactoring a Redux store into Zustand. It was magical.", repoUrl: "https://github.com/gitcrush-demo", status: "approved", createdAt: new Date(Date.now() - 86400000).toISOString(),
+           match: { user1: { username: "ReactGod", avatarUrl: "https://avatars.githubusercontent.com/u/3?v=4", totalStars: 21 }, user2: { username: "StateMaster", avatarUrl: "https://avatars.githubusercontent.com/u/4?v=4", totalStars: 89 } }
+         },
+         {
+           id: "fake3", story: "Connected on GitCrush, then built an AI side project that actually works.", repoUrl: "https://github.com/gitcrush-demo", status: "approved", createdAt: new Date(Date.now() - 172800000).toISOString(),
+           match: { user1: { username: "AI_Bro", avatarUrl: "https://avatars.githubusercontent.com/u/5?v=4", totalStars: 991 }, user2: { username: "SamAltmanFan", avatarUrl: "https://avatars.githubusercontent.com/u/6?v=4", totalStars: 2 } }
+         }
+       ];
+       return res.json(fakeMerges);
+    }
+
+    res.json(merges);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch hall of merges" });
+  }
+});
+
+// POST /api/hall-of-merges — Submit or confirm a merge
+router.post("/hall-of-merges", isAuthenticated, async (req, res) => {
+  try {
+    const { matchId, story, repoUrl } = req.body;
+    const userId = req.user.id;
+
+    const match = await prisma.match.findUnique({ where: { id: matchId } });
+    if (!match || (match.user1Id !== userId && match.user2Id !== userId)) {
+      return res.status(403).json({ error: "Unauthorized or invalid match" });
+    }
+
+    const existing = await prisma.hallOfMerge.findUnique({ where: { matchId } });
+    
+    if (existing) {
+      if (existing.status === 'pending') {
+        const updated = await prisma.hallOfMerge.update({
+          where: { matchId },
+          data: { status: 'approved' }
+        });
+        return res.json({ success: true, entry: updated, message: "Merge confirmed!" });
+      }
+      return res.status(400).json({ error: "Already exists and approved." });
+    }
+
+    // Create new
+    const newEntry = await prisma.hallOfMerge.create({
+      data: {
+        matchId,
+        user1Id: match.user1Id,
+        user2Id: match.user2Id,
+        story,
+        repoUrl,
+        status: "pending"
+      }
+    });
+
+    res.json({ success: true, entry: newEntry, message: "Submitted! Waiting for partner to confirm." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to submit merge" });
+  }
+});
+
 module.exports = router;
