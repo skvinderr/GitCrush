@@ -116,7 +116,6 @@ export default function Confessions() {
   const [text, setText] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const fetchConfessions = async (pageNum, sortMode, isLoadMore = false) => {
     if (!isLoadMore) setLoading(true);
@@ -164,7 +163,6 @@ export default function Confessions() {
       
       if (res.ok) {
         setText("");
-        setIsFormOpen(false);
         // Instantly refresh the current feed sorting
         setPage(1);
         fetchConfessions(1, sort, false);
@@ -179,106 +177,84 @@ export default function Confessions() {
 
   return (
     <div className="min-h-screen bg-brand-peach/20 py-12 px-4 sm:px-6 lg:px-8 border-l-4 border-black">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-10 text-center">
-          <h1 className="text-5xl font-black text-black tracking-tighter mb-4 flex items-center justify-center gap-3 uppercase">
-            <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤫</span>
-            Tech Confessions
-          </h1>
-          <p className="text-black font-bold text-xl uppercase tracking-widest">Confess your dev sins. Judgment-free zone.*</p>
-          <p className="text-black font-bold text-sm mt-2 bg-brand-yellow inline-block px-3 py-1 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] -rotate-2">*Just kidding, we will all silently judge you.</p>
-        </div>
-
-        {/* Post Form */}
-        {!isFormOpen ? (
-          <div className="flex justify-center mb-12">
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="px-8 py-4 bg-brand-pink border-4 border-black text-white font-black uppercase tracking-widest text-xl shadow-[6px_6px_0_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-3"
-            >
-              <span>Write a Confession</span>
-              <span className="text-2xl">✍️</span>
-            </button>
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
+        {/* Left/Sidebar Form (Sticky) */}
+        <div className="w-full lg:w-1/3 xl:w-1/4 sticky top-24 z-10">
+          <div className="mb-8 text-left">
+            <h1 className="text-4xl lg:text-5xl font-black text-black tracking-tighter mb-4 flex items-center gap-3 uppercase">
+              <span className="text-4xl lg:text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤫</span>
+              Tech Confessions
+            </h1>
+            <p className="text-black font-bold text-lg uppercase tracking-widest">Confess your dev sins. Judgment-free zone.*</p>
+            <p className="text-black font-bold text-xs mt-2 bg-brand-yellow inline-block px-3 py-1 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] -rotate-2">*Just kidding, we will all silently judge you.</p>
           </div>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-brand-purple border-4 border-black p-8 shadow-[8px_8px_0_rgba(0,0,0,1)] mb-12 relative"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-white font-black text-2xl uppercase tracking-widest drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">New Confession</h3>
-              <button 
-                onClick={() => setIsFormOpen(false)} 
-                className="text-white bg-black border-2 border-white px-3 py-1 font-black hover:bg-red-500 transition-colors uppercase text-sm tracking-widest"
-              >
-                Cancel ✕
-              </button>
-            </div>
+
+          <div className="bg-brand-purple border-4 border-black p-6 shadow-[8px_8px_0_rgba(0,0,0,1)] mb-12">
+            <h3 className="text-white font-black text-xl mb-4 uppercase tracking-widest drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">Confess Here 👇</h3>
             <textarea
-              className="w-full bg-white border-4 border-black p-4 font-mono text-base font-bold text-black focus:outline-none shadow-[4px_4px_0_rgba(0,0,0,1)] resize-none placeholder:text-black/50"
-              rows={4}
+              className="w-full bg-white border-4 border-black p-4 font-mono text-sm lg:text-base font-bold text-black focus:outline-none shadow-[4px_4px_0_rgba(0,0,0,1)] resize-none placeholder:text-black/50"
+              rows={5}
               placeholder="I once dropped production database because..."
               value={text}
               onChange={(e) => setText(e.target.value)}
               maxLength={280}
             />
-            <div className="flex justify-between items-start mt-6 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-3 cursor-pointer group bg-white border-2 border-black px-4 py-2 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-brand-yellow transition-colors">
-                  <input 
-                    type="checkbox" 
-                    checked={isAnonymous} 
-                    onChange={(e) => setIsAnonymous(e.target.checked)}
-                    className="w-5 h-5 border-2 border-black text-black focus:ring-0 cursor-pointer"
-                  />
-                  <span className={`text-sm font-black uppercase tracking-widest text-black`}>
-                    {isAnonymous ? "🎭 Anonymous" : "👤 Public"}
-                  </span>
-                </label>
-              </div>
-              
-              <div className="flex flex-col items-end gap-2">
-                <span className={`text-sm font-mono font-black border-2 border-black px-3 py-1 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] ${text.length < 20 ? 'text-red-500 bg-red-100' : 'text-black'}`}>
+            <div className="flex flex-col mt-4 gap-4">
+              <label className="flex items-center gap-3 cursor-pointer group bg-white border-2 border-black px-4 py-2 shadow-[2px_2px_0_rgba(0,0,0,1)] hover:bg-brand-yellow transition-colors">
+                <input 
+                  type="checkbox" 
+                  checked={isAnonymous} 
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="w-5 h-5 border-2 border-black text-black focus:ring-0 cursor-pointer"
+                />
+                <span className={`text-sm font-black uppercase tracking-widest text-black`}>
+                  {isAnonymous ? "🎭 Anonymous" : "👤 Public"}
+                </span>
+              </label>
+
+              <div className="flex justify-between items-center">
+                <span className={`text-xs font-mono font-black border-2 border-black px-2 py-1 bg-white shadow-[2px_2px_0_rgba(0,0,0,1)] ${text.length < 20 ? 'text-red-500 bg-red-100' : 'text-black'}`}>
                   {text.length}/280
                 </span>
                 <button
                   onClick={handlePost}
                   disabled={submitting || text.length < 20 || text.length > 280}
-                  className="px-8 py-3 bg-brand-yellow border-4 border-black text-black font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                  className="px-6 py-2 bg-brand-yellow border-4 border-black text-black font-black uppercase tracking-widest shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
                   {submitting ? "Pushing..." : "Confess"}
                 </button>
               </div>
             </div>
             {text.length > 0 && text.length < 20 && (
-              <p className="text-white bg-black border-2 border-black px-3 py-1 font-bold inline-block text-xs mt-4 uppercase tracking-widest shadow-[2px_2px_0_rgba(0,0,0,1)]">Too short to count as a real confession.</p>
+              <p className="text-white bg-black border-2 border-black px-3 py-1 font-bold inline-block text-xs mt-4 uppercase tracking-widest shadow-[2px_2px_0_rgba(0,0,0,1)]">Too short to count as a confession.</p>
             )}
-          </motion.div>
-        )}
-
-        {/* Sort Tabs */}
-        <div className="flex items-center justify-center gap-6 mb-12">
-          <button 
-            onClick={() => setSort("top")}
-            className={`px-8 py-3 font-black text-lg border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "top" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
-          >
-            🔥 Top Sins
-          </button>
-          <button 
-            onClick={() => setSort("new")}
-            className={`px-8 py-3 font-black text-lg border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "new" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
-          >
-            ✨ Newest
-          </button>
+          </div>
         </div>
 
-        {/* Feed */}
-        {loading ? (
-          <div className="flex justify-center py-20">
-             <div className="w-16 h-16 border-4 border-black border-t-brand-purple rounded-full animate-spin"></div>
+        {/* Right/Main Area (Feed) */}
+        <div className="flex-1 w-full max-w-2xl mx-auto lg:max-w-none">
+          {/* Sort Tabs */}
+          <div className="flex items-center justify-start gap-4 mb-8">
+            <button 
+              onClick={() => setSort("top")}
+              className={`px-6 py-2 font-black text-base border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "top" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
+            >
+              🔥 Top Sins
+            </button>
+            <button 
+              onClick={() => setSort("new")}
+              className={`px-6 py-2 font-black text-base border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "new" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
+            >
+              ✨ Newest
+            </button>
           </div>
-        ) : (
+
+          {/* Feed */}
+          {loading ? (
+            <div className="flex justify-center py-20">
+               <div className="w-16 h-16 border-4 border-black border-t-brand-purple rounded-full animate-spin"></div>
+            </div>
+          ) : (
           <div className="space-y-4">
             {confessions.length === 0 ? (
               <p className="text-center font-black text-black uppercase tracking-wider bg-white py-10 border-4 border-black shadow-[8px_8px_0_rgba(0,0,0,1)]">No confessions yet. Be the first to sin.</p>
@@ -300,6 +276,7 @@ export default function Confessions() {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
