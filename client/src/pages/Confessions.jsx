@@ -177,15 +177,18 @@ export default function Confessions() {
 
   return (
     <div className="min-h-screen bg-brand-peach/20 py-12 px-4 sm:px-6 lg:px-8 border-l-4 border-black">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 xl:gap-16 items-start">
         {/* Left/Sidebar Form (Sticky) */}
-        <div className="w-full lg:w-1/3 xl:w-1/4 sticky top-24 z-10">
+        <div className="w-full lg:w-[45%] xl:w-2/5 sticky top-24 z-10 pr-0 flex-shrink-0">
           <div className="mb-8 text-left">
-            <h1 className="text-4xl lg:text-5xl font-black text-black tracking-tighter mb-4 flex items-center gap-3 uppercase">
-              <span className="text-4xl lg:text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤫</span>
-              Tech Confessions
+            <h1 className="font-black text-black tracking-tighter mb-4 uppercase leading-[0.95]">
+              <div className="flex items-center gap-4 mb-2">
+                <span className="text-5xl lg:text-6xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤫</span>
+                <span className="text-5xl lg:text-6xl break-words">Tech</span>
+              </div>
+              <span className="text-[2.75rem] lg:text-[2.7rem] xl:text-[3.5rem] whitespace-nowrap block">Confessions</span>
             </h1>
-            <p className="text-black font-bold text-lg uppercase tracking-widest">Confess your dev sins. Judgment-free zone.*</p>
+            <p className="text-black font-bold text-lg xl:text-xl uppercase tracking-widest mt-6 lg:mt-8">Confess your dev sins. Judgment-free zone.*</p>
             <p className="text-black font-bold text-xs mt-2 bg-brand-yellow inline-block px-3 py-1 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] -rotate-2">*Just kidding, we will all silently judge you.</p>
           </div>
 
