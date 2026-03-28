@@ -24,6 +24,9 @@ app.use(
 
 app.use(express.json());
 
+// Trust proxy is required for Render/Heroku to know it's HTTPS
+app.set("trust proxy", 1);
+
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET || "gitcrush_secret",
   resave: false,
@@ -31,6 +34,8 @@ const sessionMiddleware = session({
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Must be true in production
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Must be 'none' for cross-domain cookies
   },
 });
 app.use(sessionMiddleware);
