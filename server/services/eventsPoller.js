@@ -81,12 +81,21 @@ async function extractLanguageData(repos) {
 }
 
 let lastEventId = null;
+let pollIntervalMs = 60000;
 
 async function pollEvents() {
   console.log('[EventsPoller] Checking for new GitHub events...');
   try {
     const response = await fetchWithRetry('https://api.github.com/events?per_page=100');
-    if (!response || !response.ok) return;
+    if (!response || !response.ok) {
+      setTimeout(pollEvents, pollIntervalMs);
+      return;
+    }
+
+    const pollIntervalHeader = response.headers.get('x-poll-interval');
+    if (pollIntervalHeader) {
+      pollIntervalMs = Math.max(60000, parseInt(pollIntervalHeader) * 1000);
+    }
 
     const events = await response.json();
     if (!events || !Array.isArray(events)) return;
@@ -168,10 +177,12 @@ async function pollEvents() {
   } catch (error) {
     console.error('[EventsPoller] Error polling events:', error);
   }
+  
+  // Schedule next poll
+  setTimeout(pollEvents, pollIntervalMs);
 }
 
-// Start polling every 60 seconds
-setInterval(pollEvents, 60000);
+// Start polling
 pollEvents(); // Initial run
 
 module.exports = { pollEvents };

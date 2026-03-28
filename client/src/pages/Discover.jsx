@@ -15,6 +15,15 @@ const languageColors = {
 };
 const defaultColor = "bg-brand-purple/20 text-brand-purple border-brand-purple/30";
 
+function timeAgo(dateString) {
+  const diffMs = new Date() - new Date(dateString);
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return "Active just now";
+  if (diffMins < 60) return `Active ${diffMins} min ago`;
+  const diffHrs = Math.floor(diffMins / 60);
+  return `Active ${diffHrs} hr ago`;
+}
+
 function normalizeLanguages(languages) {
   if (!languages) return [];
 
@@ -340,9 +349,9 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
                 </span>
               )}
               {profile.lastActiveAt && (new Date() - new Date(profile.lastActiveAt)) < 2 * 60 * 60 * 1000 && (
-                <div className="flex items-center gap-1 bg-brand-green/20 border-2 border-brand-green/40 px-2 py-0.5 rounded-full">
+                <div className="flex items-center gap-1 bg-brand-green/20 border-2 border-brand-green/40 px-2 py-0.5 rounded-full mt-1 w-max">
                   <span className="w-2 h-2 bg-brand-green rounded-full animate-pulse" />
-                  <span className="text-[10px] font-black text-brand-green uppercase tracking-tight">Active Now</span>
+                  <span className="text-[10px] font-black text-brand-green uppercase tracking-tight">{timeAgo(profile.lastActiveAt)}</span>
                 </div>
               )}
             </div>
