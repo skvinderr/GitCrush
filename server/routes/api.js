@@ -245,6 +245,25 @@ router.get("/discover", isAuthenticated, async (req, res) => {
   }
 });
 
+// GET /api/trending-active — Fetch 10 ghost profiles active in the last hour
+router.get("/trending-active", isAuthenticated, async (req, res) => {
+  try {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const activeDevs = await prisma.user.findMany({
+      where: {
+        isGhost: true,
+        lastActiveAt: { gte: oneHourAgo }
+      },
+      take: 10,
+      orderBy: { lastActiveAt: 'desc' }
+    });
+    res.json(activeDevs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch trending active devs" });
+  }
+});
+
 // POST /api/swipe — record a swipe and check for mutual match
 router.post("/swipe", isAuthenticated, async (req, res) => {
   try {

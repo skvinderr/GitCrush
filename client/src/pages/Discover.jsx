@@ -69,6 +69,45 @@ function MiniHeatmap() {
   );
 }
 
+function capitalize(str) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function TrendingDevs({ trending }) {
+  if (!trending || trending.length === 0) return null;
+
+  return (
+    <div className="absolute top-6 left-6 right-24 z-20 pointer-events-none">
+      <div className="flex flex-col gap-2">
+        <h3 className="text-[10px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-2 bg-brand-yellow w-fit px-2 py-1 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
+          </span>
+          Active in the last hour
+        </h3>
+        <div className="flex gap-2 overflow-x-auto pb-4 pointer-events-auto no-scrollbar mask-fade-right">
+          {trending.map((dev) => (
+            <div 
+              key={dev.id} 
+              className="flex-shrink-0 group relative"
+              title={`@${dev.username} - ${dev.dominantEventType || 'Active'}`}
+            >
+              <img 
+                src={dev.avatarUrl} 
+                className="w-12 h-12 rounded-full border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] group-hover:scale-110 transition-transform bg-white" 
+                alt={dev.username}
+              />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-brand-green rounded-full border-2 border-black" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MatchOverlay({ onClose }) {
   return (
     <motion.div 
@@ -300,6 +339,12 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
                   Not on GitCrush yet
                 </span>
               )}
+              {profile.lastActiveAt && (new Date() - new Date(profile.lastActiveAt)) < 2 * 60 * 60 * 1000 && (
+                <div className="flex items-center gap-1 bg-brand-green/20 border-2 border-brand-green/40 px-2 py-0.5 rounded-full">
+                  <span className="w-2 h-2 bg-brand-green rounded-full animate-pulse" />
+                  <span className="text-[10px] font-black text-brand-green uppercase tracking-tight">Active Now</span>
+                </div>
+              )}
             </div>
             {profile.location && <p className="text-sm font-bold text-text-secondary mt-1 tracking-tight">📍 {profile.location}</p>}
             {profile.personalityType && (
@@ -411,6 +456,7 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
 export default function Discover() {
   const { user } = useAuth();
   const [profiles, setProfiles] = useState([]);
+  const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showMatch, setShowMatch] = useState(false);
   const [ghostInvite, setGhostInvite] = useState(null);
@@ -440,10 +486,20 @@ export default function Discover() {
       .catch(() => setLoading(false));
   }, [filters]);
 
-  // Fetch profiles on mount
+  const fetchTrending = useCallback(() => {
+    fetch("http://localhost:5000/api/trending-active", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) setTrending(data);
+      })
+      .catch((err) => console.error("Trending fetch failed", err));
+  }, []);
+
+  // Fetch profiles and trending on mount
   useEffect(() => {
     fetchDiscover();
-  }, [fetchDiscover]);
+    fetchTrending();
+  }, [fetchDiscover, fetchTrending]);
 
   const handleSwipe = async (direction, targetId) => {
     // Optimistically remove from state and push to history
@@ -509,6 +565,8 @@ export default function Discover() {
       {/* Background decor */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-pink/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-purple/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
+
+      <TrendingDevs trending={trending} />
 
       {/* Floating Filter Button */}
       <button 

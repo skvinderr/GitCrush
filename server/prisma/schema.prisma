@@ -53,6 +53,8 @@ model User {
   isGhost           Boolean   @default(false)
   crawlQualityScore Int?
   lastCrawledAt     DateTime?
+  lastActiveAt      DateTime?
+  dominantEventType String?
 
   // Relations
   swipesGiven     Swipe[]   @relation("SwipesGiven")

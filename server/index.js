@@ -5,6 +5,7 @@ const session = require("express-session");
 
 const authRoutes = require("./routes/auth");
 const apiRoutes = require("./routes/api");
+require("./services/eventsPoller"); // Start poller
 
 const http = require("http");
 const { initSocket } = require("./socket");
