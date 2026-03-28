@@ -130,7 +130,7 @@ function MatchDetailModal({ match, onClose, onUnmatch }) {
                className="flex-1 btn-primary py-4" 
                onClick={async () => {
                  try {
-                   const res = await fetch(`http://localhost:5000/api/matches/${match.id}/date-repo-invite`, { method: "POST", credentials: "include" });
+                   const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/matches/${match.id}/date-repo-invite`, { method: "POST", credentials: "include" });
                    if (res.ok) {
                      alert("Invite sent! Open the chat to see their response.");
                      onClose();
@@ -168,7 +168,7 @@ export default function Matches() {
   const [selectedMatch, setSelectedMatch] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/matches", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/matches`, { credentials: "include" })
       .then(r => r.json())
       .then(data => {
         if (!data.error) setMatches(data);
@@ -179,7 +179,7 @@ export default function Matches() {
 
   const handleUnmatch = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/matches/${id}`, { method: "DELETE", credentials: "include" });
+      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/matches/${id}`, { method: "DELETE", credentials: "include" });
       setMatches(prev => prev.filter(m => m.id !== id));
       setSelectedMatch(null);
     } catch (e) {

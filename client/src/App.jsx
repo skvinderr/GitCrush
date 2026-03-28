@@ -27,7 +27,7 @@ function AppRoutes() {
     // If the user has logged in but hasn't synced their profile yet, trigger a sync
     if (user && !user.lastSyncedAt && !isSyncing) {
       setIsSyncing(true);
-      fetch("http://localhost:5000/api/sync-profile", { method: "POST", credentials: "include" })
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/sync-profile`, { method: "POST", credentials: "include" })
         .then((res) => res.json())
         .then((updatedUser) => {
           if (!updatedUser.error) setUser(updatedUser);

@@ -9,7 +9,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/auth/github/callback",
+      callbackURL: process.env.API_URL ? `${process.env.API_URL}/auth/github/callback` : "http://localhost:5000/auth/github/callback",
       scope: ["user:email", "public_repo"],
       // Required by GitHub's API — prevents InternalOAuthError on some Node versions
       userAgent: "GitCrush/1.0",

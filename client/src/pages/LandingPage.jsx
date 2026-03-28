@@ -31,7 +31,7 @@ export default function LandingPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   const handleLogin = () => {
-    window.location.href = "http://localhost:5000/auth/github";
+    window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/github`;
   };
 
   const nextTestimonial = () => {

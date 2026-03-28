@@ -486,7 +486,7 @@ export default function Discover() {
     if (filters.langs.length > 0) params.append("langs", filters.langs.join(","));
     if (filters.exp !== "Any") params.append("exp", filters.exp);
 
-    fetch(`http://localhost:5000/api/discover?${params.toString()}`, { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/discover?${params.toString()}`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) setProfiles(data);
@@ -496,7 +496,7 @@ export default function Discover() {
   }, [filters]);
 
   const fetchTrending = useCallback(() => {
-    fetch("http://localhost:5000/api/trending-active", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/trending-active`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) setTrending(data);
@@ -524,7 +524,7 @@ export default function Discover() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/swipe", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/swipe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -543,7 +543,7 @@ export default function Discover() {
   const handleUndo = async () => {
     if (swipeHistory.length === 0) return;
     try {
-      const res = await fetch("http://localhost:5000/api/swipes/last", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/swipes/last`, {
         method: "DELETE",
         credentials: "include"
       });

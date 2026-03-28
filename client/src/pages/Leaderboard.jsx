@@ -53,7 +53,7 @@ function MatchSubmitModal({ onClose, matches }) {
     const mObj = matches.find(m => m.id === selectedMatch);
     
     try {
-      const res = await fetch("http://localhost:5000/api/hall-of-merges", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/hall-of-merges`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ matchId: selectedMatch, story, repoUrl: mObj?.dateRepoUrl || "https://github.com" }),
@@ -137,7 +137,7 @@ export default function Leaderboard() {
   useEffect(() => {
     // Fetch active leaderboard tab
     setLoading(true);
-    fetch(`http://localhost:5000/api/leaderboard?type=${activeTab}`, { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/leaderboard?type=${activeTab}`, { credentials: "include" })
       .then(r => r.json())
       .then(data => setLeaderboardData(data))
       .catch(console.error)
@@ -146,13 +146,13 @@ export default function Leaderboard() {
 
   useEffect(() => {
     // Fetch Hall of Merges
-    fetch("http://localhost:5000/api/hall-of-merges", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/hall-of-merges`, { credentials: "include" })
       .then(r => r.json())
       .then(data => setHallOfMerges(data))
       .catch(console.error);
 
     // Fetch user matches for the submit modal
-    fetch("http://localhost:5000/api/matches", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/matches`, { credentials: "include" })
       .then(r => r.json())
       .then(data => {
          if (!data.error) setUserMatches(data);

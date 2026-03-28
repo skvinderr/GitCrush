@@ -23,7 +23,7 @@ function ConfessionCard({ confession, currentUserId, onUpdate }) {
 
   const handleReact = async (emoji) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/confessions/${confession.id}/react`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/confessions/${confession.id}/react`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emoji }),
@@ -39,7 +39,7 @@ function ConfessionCard({ confession, currentUserId, onUpdate }) {
     if (reported) return;
     if (!window.confirm("Are you sure you want to report this confession?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/confessions/${confession.id}/report`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/confessions/${confession.id}/report`, {
         method: "POST", credentials: "include"
       });
       if (res.ok) {
@@ -120,7 +120,7 @@ export default function Confessions() {
   const fetchConfessions = async (pageNum, sortMode, isLoadMore = false) => {
     if (!isLoadMore) setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/confessions?sort=${sortMode}&page=${pageNum}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/confessions?sort=${sortMode}&page=${pageNum}`, {
         credentials: "include"
       });
       const data = await res.json();
@@ -154,7 +154,7 @@ export default function Confessions() {
     if (text.length < 20 || text.length > 280) return;
     setSubmitting(true);
     try {
-      const res = await fetch("http://localhost:5000/api/confessions", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/confessions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, isAnonymous }),

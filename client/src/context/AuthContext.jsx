@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/me", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/me`, { credentials: "include" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         setUser(data);
@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = () => {
-    window.location.href = "http://localhost:5000/auth/logout";
+    window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/logout`;
   };
 
   return (

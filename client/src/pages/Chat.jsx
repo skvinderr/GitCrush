@@ -57,7 +57,7 @@ export default function Chat() {
 
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/messages/${matchId}`, { credentials: "include" });
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/messages/${matchId}`, { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setMessages(data);
@@ -68,7 +68,7 @@ export default function Chat() {
         }
         
         // Fetch match object context for Date Repos
-        const mRes = await fetch(`http://localhost:5000/api/matches`, { credentials: "include" });
+        const mRes = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/matches`, { credentials: "include" });
         const mData = await mRes.json();
         const matchObj = mData.find(m => m.id === matchId);
         if (matchObj) {
@@ -87,7 +87,7 @@ export default function Chat() {
 
   // 2. Setup Sockets
   useEffect(() => {
-    socketRef.current = io("http://localhost:5000", {
+    socketRef.current = io(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}", {
       withCredentials: true
     });
 
@@ -258,7 +258,7 @@ export default function Chat() {
                      <button 
                        onClick={async () => {
                          try {
-                           const res = await fetch(`http://localhost:5000/api/matches/${matchId}/date-repo-accept`, { method: "POST", credentials: "include" });
+                           const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/matches/${matchId}/date-repo-accept`, { method: "POST", credentials: "include" });
                            if (res.ok) {
                              const data = await res.json();
                              setMatchData(data.match);
@@ -543,7 +543,7 @@ function ChallengeCard({ matchId, partner, socket }) {
 
   const fetchChallenge = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/challenges/${matchId}`, { credentials: "include" });
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/challenges/${matchId}`, { credentials: "include" });
       if (res.ok) {
         setChallenge(await res.json());
       }
@@ -583,7 +583,7 @@ function ChallengeCard({ matchId, partner, socket }) {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/challenges/${matchId}/submit`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/challenges/${matchId}/submit`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language: lang }),
         credentials: "include"

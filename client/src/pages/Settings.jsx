@@ -9,7 +9,7 @@ export default function Settings() {
   const toggleSetting = async (field) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/me", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/me`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: !user[field] }),

@@ -18,7 +18,7 @@ export default function Profile() {
   useEffect(() => {
     if (isOwnProfile) {
       if (!authUser) { setLoading(false); return; }
-      fetch("http://localhost:5000/api/me", { credentials: "include" })
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/me`, { credentials: "include" })
         .then((res) => res.json())
         .then((data) => {
           if (!data.error) {
@@ -28,7 +28,7 @@ export default function Profile() {
         })
         .finally(() => setLoading(false));
     } else {
-      fetch(`http://localhost:5000/api/users/${username}`, { credentials: "include" })
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/users/${username}`, { credentials: "include" })
         .then((res) => res.json())
         .then((data) => {
           if (!data.error) {
@@ -45,7 +45,7 @@ export default function Profile() {
   const handleSyncGit = async () => {
     setSyncing(true);
     try {
-      const res = await fetch("http://localhost:5000/api/sync-profile", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/sync-profile`, {
         method: "POST",
         credentials: "include",
       });
@@ -63,7 +63,7 @@ export default function Profile() {
   const handleRegenBio = async () => {
     setSavingField('bio');
     try {
-      const res = await fetch("http://localhost:5000/api/regenerate-bio", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/regenerate-bio`, {
         method: "POST",
         credentials: "include",
       });
@@ -79,7 +79,7 @@ export default function Profile() {
   const updateProfile = async (updates) => {
     setSavingField(Object.keys(updates)[0]);
     try {
-      const res = await fetch("http://localhost:5000/api/me", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/me`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
@@ -97,7 +97,7 @@ export default function Profile() {
   const handleDelete = async () => {
     if (deleteConfirm !== authUser.username) return;
     try {
-      const res = await fetch("http://localhost:5000/api/me", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/me`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -325,7 +325,7 @@ export default function Profile() {
                       onChange={async (e) => {
                         const hidden = !e.target.checked;
                         try {
-                          const res = await fetch("http://localhost:5000/api/me/repo-visibility", {
+                          const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/me/repo-visibility`, {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ repoId: repo.id || repo.name, hidden }),

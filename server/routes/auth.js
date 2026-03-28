@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
-const CALLBACK_URL = "http://localhost:5000/auth/github/callback";
+const CALLBACK_URL = process.env.API_URL ? `${process.env.API_URL}/auth/github/callback` : "http://localhost:5000/auth/github/callback";
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
 // ─── Step 1: Redirect to GitHub OAuth page ──────────────────────────────────
