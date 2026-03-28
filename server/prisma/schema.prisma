@@ -49,6 +49,11 @@ model User {
   hideHeatmap     Boolean   @default(false)
   hideStats       Boolean   @default(false)
 
+  // Ghost Profile fields
+  isGhost           Boolean   @default(false)
+  crawlQualityScore Int?
+  lastCrawledAt     DateTime?
+
   // Relations
   swipesGiven     Swipe[]   @relation("SwipesGiven")
   swipesReceived  Swipe[]   @relation("SwipesReceived")

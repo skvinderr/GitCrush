@@ -46,6 +46,7 @@ passport.use(
           repos: ghProfile.public_repos || 0,
           followers: ghProfile.followers || 0,
           following: ghProfile.following || 0,
+          isGhost: false,
         };
 
         const user = await prisma.user.upsert({
@@ -58,6 +59,7 @@ passport.use(
             repos: githubUser.repos,
             followers: githubUser.followers,
             following: githubUser.following,
+            isGhost: false,
           },
           create: githubUser,
         });

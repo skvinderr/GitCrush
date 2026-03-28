@@ -6,8 +6,15 @@ function computeCompatibility(userA, userB) {
   let score = 0;
   let explanations = [];
   
-  const langsA = (userA.languages || []).map((l) => l.lang);
-  const langsB = (userB.languages || []).map((l) => l.lang);
+  const parseLangs = (langs) => {
+    if (!langs) return [];
+    if (Array.isArray(langs)) return langs.map(l => (typeof l === 'object' ? l.lang || l.name : l));
+    if (typeof langs === 'object') return Object.keys(langs);
+    return [];
+  };
+  
+  const langsA = parseLangs(userA.languages);
+  const langsB = parseLangs(userB.languages);
   
   // ─── 1. Tech Stack Overlap (25 pts) ────────────────────────────────────────────────
   const sharedLangs = langsA.filter((l) => langsB.includes(l));

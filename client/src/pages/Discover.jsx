@@ -15,6 +15,36 @@ const languageColors = {
 };
 const defaultColor = "bg-brand-purple/20 text-brand-purple border-brand-purple/30";
 
+function normalizeLanguages(languages) {
+  if (!languages) return [];
+
+  if (Array.isArray(languages)) {
+    return languages
+      .map((item) => {
+        if (typeof item === "string") return { lang: item, pct: null };
+        if (item && typeof item === "object") {
+          return {
+            lang: item.lang || item.name || "Unknown",
+            pct: typeof item.pct === "number" ? item.pct : null,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
+
+  if (typeof languages === "object") {
+    return Object.entries(languages)
+      .map(([lang, pct]) => ({
+        lang,
+        pct: typeof pct === "number" ? pct : null,
+      }))
+      .sort((a, b) => (b.pct || 0) - (a.pct || 0));
+  }
+
+  return [];
+}
+
 function MiniHeatmap() {
   // Generate a fake 12-week heatmap (12 columns x 7 rows)
   const cols = 12;
@@ -180,6 +210,7 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
   const y = useMotionValue(0);
   const [bioExpanded, setBioExpanded] = useState(false);
   const controls = useAnimation();
+  const normalizedLanguages = normalizeLanguages(profile.languages);
 
   // Animations
   const rotate = useTransform(x, [-300, 300], [-15, 15]);
@@ -262,7 +293,14 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
         <div className="flex gap-4 items-center relative z-10">
           <img src={profile.avatarUrl} alt={profile.username} className="w-20 h-20 rounded-2xl border-4 border-black object-cover shadow-[4px_4px_0_rgba(0,0,0,1)] bg-white pointer-events-none" draggable={false} />
           <div>
-            <h2 className="text-3xl font-black text-black leading-none break-all">@{profile.username}</h2>
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <h2 className="text-3xl font-black text-black leading-none break-all">@{profile.username}</h2>
+              {profile.isGhost && (
+                <span className="text-[10px] font-bold uppercase tracking-widest bg-brand-pink text-white px-2 py-0.5 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] whitespace-nowrap">
+                  Not on GitCrush yet
+                </span>
+              )}
+            </div>
             {profile.location && <p className="text-sm font-bold text-text-secondary mt-1 tracking-tight">📍 {profile.location}</p>}
             {profile.personalityType && (
               <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 border-2 border-black bg-brand-purple text-xs font-bold text-black uppercase tracking-wider shadow-[2px_2px_0_rgba(0,0,0,1)]">
@@ -313,11 +351,11 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
         {/* Coding Languages */}
         <div className="mb-5">
           <div className="flex flex-wrap gap-2">
-            {(profile.languages || []).slice(0, 4).map((l, idx) => {
+            {normalizedLanguages.slice(0, 4).map((l, idx) => {
               const colorClass = languageColors[l.lang] || defaultColor;
               return (
                 <span key={idx} className={`px-2.5 py-1 rounded-md text-[11px] font-mono border ${colorClass}`}>
-                  {l.lang} ({l.pct}%)
+                  {l.lang}{typeof l.pct === "number" ? ` (${l.pct}%)` : ""}
                 </span>
               );
             })}
@@ -375,6 +413,7 @@ export default function Discover() {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showMatch, setShowMatch] = useState(false);
+  const [ghostInvite, setGhostInvite] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [swipeHistory, setSwipeHistory] = useState([]);
 
@@ -412,6 +451,11 @@ export default function Discover() {
     setProfiles((prev) => prev.filter(p => p.id !== targetId));
     if (swipedUser) {
       setSwipeHistory((prev) => [...prev, swipedUser]);
+    }
+
+    if (direction === "right" && swipedUser?.isGhost) {
+      setGhostInvite(swipedUser);
+      return;
     }
 
     try {
@@ -518,6 +562,48 @@ export default function Discover() {
 
       <AnimatePresence>
         {showMatch && <MatchOverlay onClose={() => setShowMatch(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {ghostInvite && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-pink/90 backdrop-blur-sm p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.5, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ type: "spring", bounce: 0.6 }}
+              className="text-center bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-12 rounded-3xl"
+            >
+              <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">👻</div>
+              <h1 className="text-4xl md:text-5xl font-black text-black mb-4 uppercase tracking-tight">
+                Invite @{ghostInvite.username}!
+              </h1>
+              <p className="text-xl text-black font-bold mb-10">They aren't on GitCrush yet. Copy this link to invite them via GitHub!</p>
+              
+              <div className="flex flex-col gap-4 max-w-sm mx-auto">
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://gitcrush.dev/invite/${ghostInvite.username}`);
+                    alert("Link copied to clipboard!");
+                  }}
+                  className="btn-primary text-xl px-12 py-5 uppercase tracking-wide"
+                >
+                  Copy Invite Link
+                </button>
+                <button 
+                  onClick={() => setGhostInvite(null)}
+                  className="px-12 py-4 text-xl font-black text-black uppercase tracking-wide hover:bg-brand-yellow border-4 border-transparent hover:border-black rounded-xl transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <FilterDrawer 

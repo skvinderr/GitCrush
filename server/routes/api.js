@@ -195,13 +195,19 @@ router.get("/discover", isAuthenticated, async (req, res) => {
         ...(intentQuery && { intent: { hasSome: intentQuery } }) // Prisma Mongo array check
       },
       take: 50,
+      orderBy: { createdAt: 'desc' } // Grab the newest users (including newly crawled ghosts)
     });
 
     // ── Post-DB Filtering (for JSON languages and experience scores) ──
     if (langsQuery && langsQuery.length > 0) {
       users = users.filter(u => {
         if (!u.languages) return false;
-        const userLangs = u.languages.map(l => l.lang.toLowerCase());
+        let userLangs = [];
+        if (Array.isArray(u.languages)) {
+          userLangs = u.languages.map(l => (typeof l === 'object' ? l.lang : l).toLowerCase());
+        } else if (typeof u.languages === 'object') {
+          userLangs = Object.keys(u.languages).map(l => l.toLowerCase());
+        }
         return langsQuery.some(ql => userLangs.includes(ql.toLowerCase()));
       });
     }
@@ -219,8 +225,18 @@ router.get("/discover", isAuthenticated, async (req, res) => {
       return { ...u, matchScore: score, matchReason: explanation };
     });
 
-    // Sort by compatibility DESC
-    scoredUsers.sort((a, b) => b.matchScore - a.matchScore);
+    // Sort by compatibility DESC, but push real users to the top
+    scoredUsers.sort((a, b) => {
+      // Real users (isGhost: false or null) come before ghost users
+      const aIsReal = !a.isGhost;
+      const bIsReal = !b.isGhost;
+      
+      if (aIsReal && !bIsReal) return -1;
+      if (!aIsReal && bIsReal) return 1;
+
+      // Make compatibility matter more within the group
+      return b.matchScore - a.matchScore;
+    });
 
     res.json(scoredUsers);
   } catch (err) {
