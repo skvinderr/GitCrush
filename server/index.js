@@ -17,7 +17,11 @@ const PORT = process.env.PORT || 5000;
 // ─── MIDDLEWARE ────────────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow any origin that requests it (reflects the origin back)
+      if (!origin) return callback(null, true);
+      return callback(null, origin);
+    },
     credentials: true,
   })
 );
@@ -34,8 +38,8 @@ const sessionMiddleware = session({
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Must be true in production
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Must be 'none' for cross-domain cookies
+    secure: true, // ALWAYS true for production (Render is HTTPS)
+    sameSite: "none", // ALWAYS none for cross-domain cookies to work (Vercel -> Render)
   },
 });
 app.use(sessionMiddleware);
