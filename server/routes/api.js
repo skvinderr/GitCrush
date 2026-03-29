@@ -245,14 +245,13 @@ router.get("/discover", isAuthenticated, async (req, res) => {
   }
 });
 
-// GET /api/trending-active — Fetch 10 ghost profiles active in the last hour
+// GET /api/trending-active — Fetch 10 ghost profiles recently active 
 router.get("/trending-active", isAuthenticated, async (req, res) => {
   try {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const activeDevs = await prisma.user.findMany({
       where: {
         isGhost: true,
-        lastActiveAt: { gte: oneHourAgo }
+        lastActiveAt: { not: null }
       },
       take: 10,
       orderBy: { lastActiveAt: 'desc' }
