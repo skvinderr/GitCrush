@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+﻿import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import SearchBar from "./SearchBar";
 
@@ -18,16 +18,18 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
-          {/* Logo */}
-          <button onClick={() => navigate("/discover")}
-                  className="flex items-center gap-2 group hover:-translate-y-1 transition-transform">
-            <span className="text-2xl drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">💘</span>
-            <span className="font-black text-xl tracking-tight uppercase">
-              <span className="text-black">Git</span>
-              <span className="text-brand-pink drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">Crush</span>
-            </span>
-          </button>
-          <SearchBar />
+          {/* Logo + Search */}
+          <div className="flex items-center">
+            <button onClick={() => navigate("/discover")}
+                    className="flex items-center gap-2 group hover:-translate-y-1 transition-transform">
+              <span className="text-2xl drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">❤️</span>
+              <span className="font-black text-xl tracking-tight uppercase">
+                <span className="text-black">Git</span>
+                <span className="text-brand-pink drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">Crush</span>
+              </span>
+            </button>
+            <SearchBar />
+          </div>
 
           {/* Nav Links */}
           <nav className="hidden md:flex items-center gap-2">
@@ -41,7 +43,7 @@ export default function Navbar() {
           {/* User + Logout */}
           <div className="flex items-center gap-4">
             {user && (
-              <button 
+              <button
                 onClick={() => navigate("/profile")}
                 className="flex items-center gap-2 bg-brand-yellow/30 px-3 py-1 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-brand-yellow/50 hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
               >
@@ -54,7 +56,6 @@ export default function Navbar() {
                   @{user.username}
                 </span>
               </button>
-          <SearchBar />
             )}
             <button
               onClick={logout}
@@ -62,7 +63,6 @@ export default function Navbar() {
             >
               Logout
             </button>
-          <SearchBar />
           </div>
 
         </div>
@@ -70,4 +70,3 @@ export default function Navbar() {
     </header>
   );
 }
-
