@@ -62,7 +62,7 @@ export default function SearchBar() {
               onClick={() => {
                 setIsOpen(false);
                 setQuery("");
-                navigate(`/users/${r.username}`);
+                navigate(`/profile/${r.username}`);
               }}
               className="flex items-center gap-3 p-3 hover:bg-brand-yellow/20 cursor-pointer border-b border-gray-100 last:border-0"
             >

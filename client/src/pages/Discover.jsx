@@ -105,7 +105,7 @@ function TrendingDevs({ trending }) {
               key={dev.id} 
               className="flex-shrink-0 group relative cursor-pointer"
               title={`@${dev.username} - ${dev.dominantEventType || 'Active'}`}
-              onClick={() => navigate(`/users/${dev.username}`)}
+              onClick={() => navigate(`/profile/${dev.username}`)}
             >
               <img 
                 src={dev.avatarUrl} 
