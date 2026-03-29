@@ -1032,7 +1032,22 @@ router.post("/hall-of-merges", isAuthenticated, async (req, res) => {
   }
 });
 
-// GET /api/users/:username — fetch public profile
+// GET /api/search/users?q=keyword
+router.get("/search/users", isAuthenticated, async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.length < 2) return res.json([]);
+    const users = await prisma.user.findMany({
+      where: {
+        username: { contains: q, mode: "insensitive" },
+        id: { not: req.user.id }
+      }, take: 5, select: { id: true, username: true, avatarUrl: true, bio: true }
+    });
+    res.json(users);
+  } catch(e) { res.status(500).json({error: "Search failed"}); }
+});
+
+// GET /api/users/:username
 router.get("/users/:username", isAuthenticated, async (req, res) => {
   try {
     const target = await prisma.user.findFirst({
@@ -1119,3 +1134,4 @@ router.delete("/me", isAuthenticated, async (req, res) => {
 });
 
 module.exports = router;
+

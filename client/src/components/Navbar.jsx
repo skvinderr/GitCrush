@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import SearchBar from "./SearchBar";
 
 const navItems = [
   { label: "Discover", to: "/discover" },
@@ -27,6 +28,7 @@ export default function Navbar() {
               <span className="text-brand-pink drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">Crush</span>
             </span>
           </button>
+          <SearchBar />
 
           {/* Nav Links */}
           <nav className="hidden md:flex items-center gap-2">
@@ -53,6 +55,7 @@ export default function Navbar() {
                   @{user.username}
                 </span>
               </button>
+          <SearchBar />
             )}
             <button
               onClick={logout}
@@ -60,6 +63,7 @@ export default function Navbar() {
             >
               Logout
             </button>
+          <SearchBar />
           </div>
 
         </div>
@@ -67,3 +71,4 @@ export default function Navbar() {
     </header>
   );
 }
+
