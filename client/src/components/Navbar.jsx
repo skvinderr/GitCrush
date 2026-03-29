@@ -7,7 +7,6 @@ const navItems = [
   { label: "Confessions", to: "/confessions" },
   { label: "Leaderboard", to: "/leaderboard" },
   { label: "Matches",  to: "/matches"  },
-  { label: "Chat",     to: "/chat"     },
 ];
 
 export default function Navbar() {
