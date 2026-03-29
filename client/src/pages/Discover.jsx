@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import SearchBar from "../components/SearchBar";
 import { useAuth } from "../context/AuthContext";
 import { motion, useMotionValue, useTransform, useAnimation, AnimatePresence } from "framer-motion";
 
@@ -695,3 +697,6 @@ export default function Discover() {
     </div>
   );
 }
+
+
+
