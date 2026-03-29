@@ -1077,7 +1077,17 @@ router.get("/users/:username", isAuthenticated, async (req, res) => {
         });
     }
 
-    res.json({ user: target, isMatched: !!isMatched });
+    // Compute compatibility score
+    const { computeCompatibility } = require("../services/compatibilityEngine");
+    const comp = computeCompatibility(req.user, target);
+    
+    const targetWithScore = {
+      ...target,
+      matchScore: comp.score,
+      matchReason: comp.explanation
+    };
+
+    res.json({ user: targetWithScore, isMatched: !!isMatched });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch user" });

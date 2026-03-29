@@ -262,7 +262,7 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
   );
 }
 
-function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
+export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const [bioExpanded, setBioExpanded] = useState(false);
