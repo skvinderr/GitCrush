@@ -125,4 +125,4 @@ Feel free to check [issues page](https://github.com/your-username/git-tinder/iss
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-<div align="center">Made with 💖 by developers, for developers.</div>
+<div align="center">Made with 💖 by Aditya, for developers.</div>
