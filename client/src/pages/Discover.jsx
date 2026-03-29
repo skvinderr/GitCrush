@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import { useAuth } from "../context/AuthContext";
@@ -86,11 +86,12 @@ function capitalize(str) {
 }
 
 function TrendingDevs({ trending }) {
+  const navigate = useNavigate();
   if (!trending || trending.length === 0) return null;
 
   return (
     <div className="absolute top-6 left-6 right-24 z-20 pointer-events-none">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 w-fit max-w-[200px] md:max-w-[240px]">
         <h3 className="text-[10px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-2 bg-brand-yellow w-fit px-2 py-1 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
@@ -98,22 +99,28 @@ function TrendingDevs({ trending }) {
           </span>
           Active in the last hour
         </h3>
-        <div className="flex gap-2 overflow-x-auto pb-4 pointer-events-auto no-scrollbar mask-fade-right">
+        <div className="grid grid-cols-5 gap-2 pb-4 pointer-events-auto">
           {trending.map((dev) => (
             <div 
               key={dev.id} 
-              className="flex-shrink-0 group relative"
+              className="flex-shrink-0 group relative cursor-pointer"
               title={`@${dev.username} - ${dev.dominantEventType || 'Active'}`}
+              onClick={() => navigate(`/users/${dev.username}`)}
             >
               <img 
                 src={dev.avatarUrl} 
-                className="w-12 h-12 rounded-full border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] group-hover:scale-110 transition-transform bg-white" 
+                className="w-10 h-10 md:w-11 md:h-11 rounded-full border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)] group-hover:scale-110 object-cover transition-transform bg-white" 
                 alt={dev.username}
               />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-brand-green rounded-full border-2 border-black" />
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-brand-green rounded-full border-2 border-black" />
             </div>
           ))}
         </div>
+      </div>
+      
+      {/* Global Search Bar explicitly shown on Discover page */}
+      <div className="pointer-events-auto z-50 mt-2 w-fit">
+        <SearchBar />
       </div>
     </div>
   );
@@ -133,7 +140,7 @@ function MatchOverlay({ onClose }) {
         transition={{ type: "spring", bounce: 0.6 }}
         className="text-center bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-12 rounded-3xl"
       >
-        <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🎉</div>
+        <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">ðŸŽ‰</div>
         <h1 className="text-4xl md:text-5xl font-black text-black mb-4 uppercase tracking-tight">
           Merge Request Approved
         </h1>
@@ -169,9 +176,9 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
             className="fixed top-0 right-0 h-full w-full max-w-sm bg-white border-l-4 border-black shadow-[-8px_0px_0px_0px_rgba(0,0,0,1)] z-50 p-6 overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-8 border-b-4 border-black pb-4">
-              <h2 className="text-2xl font-black text-black flex items-center gap-2 uppercase tracking-tight"><span>🎛️</span> Filters</h2>
+              <h2 className="text-2xl font-black text-black flex items-center gap-2 uppercase tracking-tight"><span>ðŸŽ›ï¸</span> Filters</h2>
               <button onClick={onClose} className="p-2 bg-brand-yellow border-2 border-black rounded-sm shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all font-black text-black">
-                ✕
+                âœ•
               </button>
             </div>
 
@@ -357,10 +364,10 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
                 </div>
               )}
             </div>
-            {profile.location && <p className="text-sm font-bold text-text-secondary mt-1 tracking-tight">📍 {profile.location}</p>}
+            {profile.location && <p className="text-sm font-bold text-text-secondary mt-1 tracking-tight">ðŸ“ {profile.location}</p>}
             {profile.personalityType && (
               <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 border-2 border-black bg-brand-purple text-xs font-bold text-black uppercase tracking-wider shadow-[2px_2px_0_rgba(0,0,0,1)]">
-                <span>🎭</span> {profile.personalityType}
+                <span>ðŸŽ­</span> {profile.personalityType}
               </div>
             )}
           </div>
@@ -425,7 +432,7 @@ function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
           {profile.redFlags && profile.redFlags.length > 0 && (
             <div className="flex-1 text-right">
               <div className="text-[10px] text-red-400/80 mb-1 uppercase tracking-widest font-bold flex items-center justify-end gap-1">
-                <span>🚩</span> Flags
+                <span>ðŸš©</span> Flags
               </div>
               <ul className="space-y-1">
                 {profile.redFlags.map((flag, idx) => (
@@ -596,7 +603,7 @@ export default function Discover() {
       {/* Empty State */}
       {profiles.length === 0 && (
         <div className="text-center px-4 max-w-sm">
-          <div className="text-6xl mb-6 opacity-50">🛑</div>
+          <div className="text-6xl mb-6 opacity-50">ðŸ›‘</div>
           <h2 className="text-2xl font-bold text-text-primary mb-3">No more devs in your area!</h2>
           <p className="text-text-secondary mb-6">Looks like you've swiped through everyone, or your filters are too strict. Try loosening them up or \`git pull --all\` later.</p>
           <button onClick={() => {
@@ -647,7 +654,7 @@ export default function Discover() {
               transition={{ type: "spring", bounce: 0.6 }}
               className="text-center bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-12 rounded-3xl"
             >
-              <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">👻</div>
+              <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">ðŸ‘»</div>
               <h1 className="text-4xl md:text-5xl font-black text-black mb-4 uppercase tracking-tight">
                 Invite @{ghostInvite.username}!
               </h1>
@@ -697,6 +704,7 @@ export default function Discover() {
     </div>
   );
 }
+
 
 
 

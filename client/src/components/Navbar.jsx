@@ -1,6 +1,6 @@
-﻿import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import SearchBar from "./SearchBar";
+
 
 const navItems = [
   { label: "Discover", to: "/discover" },
@@ -22,13 +22,13 @@ export default function Navbar() {
           <div className="flex items-center">
             <button onClick={() => navigate("/discover")}
                     className="flex items-center gap-2 group hover:-translate-y-1 transition-transform">
-              <span className="text-2xl drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">❤️</span>
+              <span className="text-2xl drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">??</span>
               <span className="font-black text-xl tracking-tight uppercase">
                 <span className="text-black">Git</span>
                 <span className="text-brand-pink drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">Crush</span>
               </span>
             </button>
-            <SearchBar />
+            
           </div>
 
           {/* Nav Links */}

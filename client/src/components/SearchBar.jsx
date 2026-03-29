@@ -41,7 +41,7 @@ export default function SearchBar() {
   }, [query]);
 
   return (
-    <div className="relative z-50 ml-4 hidden md:block" ref={wrapperRef}>
+    <div className="relative z-50 ml-4 block" ref={wrapperRef}>
       <div className="relative">
         <input
           type="text"
