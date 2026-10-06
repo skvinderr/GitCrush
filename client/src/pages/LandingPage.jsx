@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Laptop, Heart, Flame, Settings, Star, ThumbsUp, Rocket } from "lucide-react";
 
+// check karna zaruri hai
+
 // --- Fake Data for Testimonials ---
 const TESTIMONIALS = [
   {

@@ -1,3 +1,4 @@
+// fatfat run hoga ab
 const { PrismaClient } = require("@prisma/client");
 const { computePersonalityType, detectRedFlags } = require("./profileAnalysis");
 const { generateAiBio } = require("./bioGenerator");
@@ -48,7 +49,7 @@ async function syncGithubProfile(userId) {
   const token = user.accessToken;
   const username = user.username;
 
-  // ─── 1. Fetch repos ───────────────────────────────────────────────────
+  // 1. repos fetch karo
   const repos = await fetchFromRest(`/users/${username}/repos?per_page=100&type=owner`, token);
   if (!repos) throw new Error("Could not fetch repos");
 
@@ -58,7 +59,7 @@ async function syncGithubProfile(userId) {
 
   const topRepos = [...repos].sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 5);
 
-  // ─── 2. Aggregate languages + topics + stars in parallel ──────────────
+  // 2. sab data ek saath aggregate karo (parallel me)
   const repoPromises = repos.map(async (repo) => {
     totalStars += repo.stargazers_count;
     if (repo.topics) {
@@ -91,7 +92,7 @@ async function syncGithubProfile(userId) {
     .slice(0, 8)
     .map((t) => t[0]);
 
-  // ─── 3. Commit time pattern via punch card ─────────────────────────────
+  // 3. punch card se time pattern nikalo
   const hourCounts = { morning: 0, afternoon: 0, evening: 0, night: 0 };
   const punchPromises = topRepos.map(async (repo) => {
     try {
@@ -108,7 +109,7 @@ async function syncGithubProfile(userId) {
   const commitPattern = Object.entries(hourCounts)
     .sort((a, b) => b[1] - a[1])[0][0];
 
-  // ─── 4. GraphQL — Calendar, Streaks, Experience ───────────────────────
+  // 4. graphql se calendar and streaks nikalo
   const query = `
     query {
       viewer {
@@ -161,11 +162,11 @@ async function syncGithubProfile(userId) {
     }
   }
 
-  // ─── 5. Personality + Red Flags ───────────────────────────────────────
+  // 5. personality aur red flags
   const personality = computePersonalityType({ repos, hourCounts, languagesMap, totalCommits });
   const redFlags = detectRedFlags({ repos, allDays, totalCommits });
 
-  // ─── 6. AI bio — generate only on first sync to avoid token waste ─────
+  // 6. ai bio (sirf first time generate karo to save tokens)
   const existingUser = await prisma.user.findUnique({ where: { id: userId }, select: { aiBio: true } });
   let aiBio = existingUser?.aiBio || null;
 
@@ -187,7 +188,7 @@ async function syncGithubProfile(userId) {
     }
   }
 
-  // ─── 7. Persist to DB ─────────────────────────────────────────────────
+  // 7. db me save karlo
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: {

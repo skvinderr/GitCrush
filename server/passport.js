@@ -1,3 +1,4 @@
+// thoda optimize kiya hai
 const passport = require("passport");
 const GitHubStrategy = require("passport-github2").Strategy;
 const { PrismaClient } = require("@prisma/client");

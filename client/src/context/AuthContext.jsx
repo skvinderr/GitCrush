@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
+// check karna zaruri hai
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {

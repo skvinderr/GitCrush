@@ -12,6 +12,8 @@ import Confessions  from "./pages/Confessions";
 import Leaderboard  from "./pages/Leaderboard";
 import SyncLoader   from "./components/SyncLoader";
 
+// ekdum solid code
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="flex items-center justify-center min-h-screen text-text-secondary">Loading…</div>;

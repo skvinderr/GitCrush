@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Landmark, Star, Laptop, HeartHandshake, Sparkles, Ghost } from "lucide-react";
 
+// check karna zaruri hai
+
 function LeaderboardRow({ rank, title, subtitle, avatarUrl, stat, profileUrl }) {
   const isTop3 = rank <= 3;
   const badges = [<Trophy key="1" className="w-6 h-6" />, <Trophy key="2" className="w-6 h-6 text-gray-500" />, <Trophy key="3" className="w-6 h-6 text-amber-700" />];

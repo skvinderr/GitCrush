@@ -7,6 +7,8 @@ import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css"; // Beautiful dark theme
 import { Star, Flame, Skull, Eye, Rocket, Snowflake, HeartHandshake, Swords } from "lucide-react";
 
+// check karna zaruri hai
+
 const AVAILABLE_REACTIONS = ["⭐", "🔥", "💀", "👀", "🚀"];
 const reactionIcons = {
   "⭐": <Star className="w-4 h-4 inline" />,

@@ -1,9 +1,5 @@
-/**
- * generateAiBio — calls Groq AI (Llama 3) to generate a funny, warm dating bio
- * based on the user's GitHub profile data.
- *
- * Uses native fetch to Groq's OpenAI-compatible endpoint.
- */
+// check karna zaruri hai
+// generateAiBio — calls Groq AI (Llama 3) to generate a funny, warm dating bio (simplified)
 async function generateAiBio(userData) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
@@ -28,13 +24,13 @@ async function generateAiBio(userData) {
     : "Not specified";
 
   const redFlagsStr =
-    Array.isArray(redFlags) && redFlags.length > 0
+    redFlags?.length > 0
       ? redFlags.join("; ")
       : "None detected (suspicious)";
 
   const pinnedStr =
     pinnedRepos.length > 0
-      ? pinnedRepos.map((r) => r.description || r.name).filter(Boolean).join("; ")
+      ? pinnedRepos.map((r) => r.description || r.name).filter(x => x).join("; ")
       : "None pinned";
 
   const systemPrompt = `You are writing a funny, warm, and slightly self-aware dating profile bio for a developer on a platform called GitCrush. Keep it under 60 words. First person. No hashtags. Tone: warm, witty, developer-native. Include one specific technical detail, one personality trait, and one gentle self-roast.`;

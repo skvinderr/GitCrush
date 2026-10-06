@@ -1,7 +1,5 @@
-/**
- * computeCompatibility — calculates a dating compatibility score between two GitCrush users.
- * Returns { score: number, explanation: string }
- */
+// fatfat run hoga ab
+// computeCompatibility — calculates a dating compatibility score between two GitCrush users. (simplified)
 function computeCompatibility(userA, userB) {
   let score = 0;
   let explanations = [];
@@ -16,7 +14,7 @@ function computeCompatibility(userA, userB) {
   const langsA = parseLangs(userA.languages);
   const langsB = parseLangs(userB.languages);
   
-  // ─── 1. Tech Stack Overlap (25 pts) ────────────────────────────────────────────────
+  // 1. tech stack kitna match karta hai (25 pts)
   const sharedLangs = langsA.filter((l) => langsB.includes(l));
   let techScore = 0;
   if (sharedLangs.length >= 3) techScore = 25;
@@ -28,7 +26,7 @@ function computeCompatibility(userA, userB) {
   }
   score += techScore;
 
-  // ─── 2. Activity Pattern Match (20 pts) ────────────────────────────────────────────
+  // 2. coding habits match (day/night)
   const patternA = userA.commitPattern || "day";
   const patternB = userB.commitPattern || "day";
   
@@ -48,7 +46,7 @@ function computeCompatibility(userA, userB) {
     patternMatch = "opposite";
   }
 
-  // ─── 3. Project Type Similarity (20 pts) ───────────────────────────────────────────
+  // 3. same type ke projects?
   const topicsA = userA.topics || [];
   const topicsB = userB.topics || [];
   
@@ -63,7 +61,7 @@ function computeCompatibility(userA, userB) {
     score += 10;
   }
 
-  // ─── 4. Experience Level (15 pts) ──────────────────────────────────────────────────
+  // 4. experience level gap
   const expA = userA.experienceScore || 0;
   const expB = userB.experienceScore || 0;
   let expGap = Math.abs(expA - expB);
@@ -86,7 +84,7 @@ function computeCompatibility(userA, userB) {
     else score += 0;
   }
 
-  // ─── 5. Complementary Skills (10 pts) ──────────────────────────────────────────────
+  // 5. frontend-backend combo check
   const frontend = ["JavaScript", "TypeScript", "HTML", "CSS", "Vue", "React", "Svelte", "Angular"];
   const backend = ["Python", "Go", "Rust", "Java", "C++", "C#", "Ruby", "PHP"];
   
@@ -103,7 +101,7 @@ function computeCompatibility(userA, userB) {
     score += 5;
   }
 
-  // ─── 6. Community Signals (10 pts) ─────────────────────────────────────────────────
+  // 6. community signals like followers
   // Skipping live GitHub API follow checks per prompt, but giving 5 points random chance 
   // or if they have unusually large followers we assume community overlap.
   if ((userA.followers > 50 && userB.followers > 50) || sharedLangs.length >= 4) {
@@ -115,7 +113,7 @@ function computeCompatibility(userA, userB) {
   // Clamp max score to 100
   score = Math.min(100, Math.max(0, score));
 
-  // ─── EXPLANATION GENERATOR ─────────────────────────────────────────────────────────
+  // explanation generate karo based on score
   let explanation = "";
   
   const topSharedLang = sharedLangs[0] || "code";

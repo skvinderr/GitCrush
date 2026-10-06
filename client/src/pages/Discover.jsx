@@ -5,7 +5,9 @@ import { useAuth } from "../context/AuthContext";
 import { motion, useMotionValue, useTransform, useAnimation, AnimatePresence } from "framer-motion";
 import { PartyPopper, SlidersHorizontal, X, MapPin, VenetianMask, Flag, Ban, Ghost } from "lucide-react";
 
-// Helper for GitHub-style language colors
+// fatfat run hoga ab
+
+// colors for languages
 const languageColors = {
   JavaScript: "bg-yellow-400/20 text-yellow-400 border-yellow-400/30",
   TypeScript: "bg-blue-400/20 text-blue-400 border-blue-400/30",
@@ -42,7 +44,7 @@ function normalizeLanguages(languages) {
         }
         return null;
       })
-      .filter(Boolean);
+      .filter(x => x);
   }
 
   if (typeof languages === "object") {
@@ -58,7 +60,7 @@ function normalizeLanguages(languages) {
 }
 
 function MiniHeatmap() {
-  // Generate a fake 12-week heatmap (12 columns x 7 rows)
+  // fake heatmap (12 columns x 7 rows)
   const cols = 12;
   const rows = 7;
   const squares = Array.from({ length: cols * rows }).map((_, i) => {
@@ -185,7 +187,7 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
             </div>
 
             <div className="space-y-6">
-              {/* Intent */}
+              {/* intent check */}
               <div>
                 <h3 className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-3 border-b border-bg-border pb-1">Looking For</h3>
                 <div className="flex flex-col gap-2">
@@ -206,7 +208,7 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
                 </div>
               </div>
 
-              {/* Experience */}
+              {/* exp level */}
               <div>
                 <h3 className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-3 border-b border-bg-border pb-1">Experience Level</h3>
                 <select 
@@ -221,7 +223,7 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
                 </select>
               </div>
 
-              {/* Languages */}
+              {/* top languages */}
               <div>
                 <h3 className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-3 border-b border-bg-border pb-1">Top Languages</h3>
                 <div className="flex flex-wrap gap-2">
@@ -271,7 +273,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
   const controls = useAnimation();
   const normalizedLanguages = normalizeLanguages(profile.languages);
 
-  // Animations
+  // swipe animations setup
   const rotate = useTransform(x, [-300, 300], [-15, 15]);
   const crushOpacity = useTransform(x, [10, 150], [0, 1]);
   const passOpacity = useTransform(x, [-10, -150], [0, 1]);
@@ -300,7 +302,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
     }
   };
 
-  // Allow passing keyboard triggers manually if needed
+  // keyboard se swipe allow karo
   useEffect(() => {
     if (isFront) {
       const handleKeyDown = (e) => {
@@ -336,7 +338,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
       whileTap={{ cursor: "grabbing" }}
       layout
     >
-      {/* Swipe Overlays */}
+      {/* swipe overlays */}
       <motion.div style={{ opacity: crushOpacity }} className="absolute inset-0 bg-brand-green/80 z-50 flex items-center justify-center pointer-events-none">
         <div className="border-8 border-black text-black font-black text-6xl px-8 py-4 bg-white rotate-12 shadow-[8px_8px_0_rgba(0,0,0,1)]">CRUSH</div>
       </motion.div>
@@ -347,7 +349,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
         <div className="border-8 border-black text-black font-black text-5xl px-8 py-4 bg-brand-yellow -rotate-6 shadow-[8px_8px_0_rgba(0,0,0,1)] text-center tracking-tighter leading-none uppercase">Super<br/>Star</div>
       </motion.div>
 
-      {/* Top Header - Avatar & Basic Info */}
+      {/* top profile header */}
       <div className="relative p-6 pt-8 shrink-0 border-b-4 border-black bg-brand-yellow/30">
         <div className="flex gap-4 items-center relative z-10">
           <img src={profile.avatarUrl} alt={profile.username} className="w-20 h-20 rounded-2xl border-4 border-black object-cover shadow-[4px_4px_0_rgba(0,0,0,1)] bg-white pointer-events-none" draggable={false} />
@@ -376,12 +378,12 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
         </div>
       </div>
 
-      {/* Match Score Bar */}
+      {/* match score progress */}
       <div className="h-2 w-full bg-white relative shrink-0 border-b-4 border-black">
         <div className={`absolute top-0 left-0 h-full bg-gradient-to-r ${scoreColor}`} style={{ width: `${profile.matchScore || 0}%` }} />
       </div>
 
-      {/* Scrollable Content */}
+      {/* scrollable bio content */}
       <div className="flex-1 overflow-y-auto p-6 scrollbar-hide bg-white relative">
         <div className="flex justify-between items-end mb-6">
            <div className="flex gap-4 font-mono text-sm text-black">
@@ -413,7 +415,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
           )}
         </div>
 
-        {/* Coding Languages */}
+        {/* languages */}
         <div className="mb-5">
           <div className="flex flex-wrap gap-2">
             {normalizedLanguages.slice(0, 4).map((l, idx) => {
@@ -427,7 +429,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
           </div>
         </div>
 
-        {/* Heatmap & Red Flags side by side */}
+        {/* heatmap and flags ek sath */}
         <div className="flex flex-row justify-between items-start mb-2 gap-4">
           <MiniHeatmap />
           
@@ -448,7 +450,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* swipe buttons */}
       <div className="p-4 bg-brand-blue/30 border-t-4 border-black flex justify-evenly shrink-0 pb-6">
         <button 
           onClick={() => isFront && controls.start({ x: -500, transition: { duration: 0.3 } }).then(() => onSwipe("left", profile.id))}

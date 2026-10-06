@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { SwipeCard } from "./Discover";
 import { Heart, Star } from "lucide-react";
 
+// fatfat run hoga ab
+
 export default function Profile() {
   const { user: authUser, setUser } = useAuth();
   const { username } = useParams();

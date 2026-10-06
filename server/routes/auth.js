@@ -1,3 +1,4 @@
+// kaam ho jayega isse
 const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
@@ -9,7 +10,7 @@ const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 const CALLBACK_URL = process.env.API_URL ? `${process.env.API_URL}/auth/github/callback` : "http://localhost:5000/auth/github/callback";
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
-// ─── Step 1: Redirect to GitHub OAuth page ──────────────────────────────────
+// step 1: redirect to github oauth page
 router.get("/github", (req, res) => {
   const params = new URLSearchParams({
     client_id: GITHUB_CLIENT_ID,
@@ -19,7 +20,7 @@ router.get("/github", (req, res) => {
   res.redirect(`https://github.com/login/oauth/authorize?${params}`);
 });
 
-// ─── Step 2: GitHub redirects back with a code ──────────────────────────────
+// step 2: github redirects back with a code
 router.get("/github/callback", async (req, res) => {
   const { code } = req.query;
   if (!code) return res.redirect(`${CLIENT_URL}?error=no_code`);
@@ -92,7 +93,7 @@ router.get("/github/callback", async (req, res) => {
   }
 });
 
-// ─── Logout ───────────────────────────────────────────────────────────────────
+// logout
 router.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect(CLIENT_URL);

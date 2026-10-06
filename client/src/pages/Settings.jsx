@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
+// check karna zaruri hai
+
 export default function Settings() {
   const { user, setUser } = useAuth();
   const [loading, setLoading] = useState(false);

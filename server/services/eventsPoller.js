@@ -1,3 +1,4 @@
+// thoda optimize kiya hai
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const shopify_fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -7,7 +8,7 @@ const GITHUB_TOKENS = [
   process.env.GITHUB_TOKEN_2,
   process.env.GITHUB_TOKEN_3,
   process.env.GITHUB_TOKEN_4
-].filter(Boolean);
+].filter(x => x);
 
 let currentTokenIndex = 0;
 const MIN_QUALITY_SCORE = 5;

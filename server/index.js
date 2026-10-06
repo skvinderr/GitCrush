@@ -1,3 +1,4 @@
+// mast logic hai
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -14,7 +15,7 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
-// ─── MIDDLEWARE ────────────────────────────────────────────────────────────────
+// basic middlewares
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -47,7 +48,7 @@ app.use(sessionMiddleware);
 // Initialize Socket.io
 initSocket(server, sessionMiddleware);
 
-// ─── ROUTES ───────────────────────────────────────────────────────────────────
+// routes vagera setup
 app.use("/auth", authRoutes);
 app.use("/api", apiRoutes);
 
@@ -55,7 +56,7 @@ app.get("/", (req, res) => {
   res.json({ message: "GitCrush API is running 💘" });
 });
 
-// ─── START ────────────────────────────────────────────────────────────────────
+// server start karo
 server.listen(PORT, () => {
   console.log(`🚀 GitCrush server running on http://localhost:${PORT}`);
 });

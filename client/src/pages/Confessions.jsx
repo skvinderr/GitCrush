@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import { Skull, Flame, Eye, Check, Rocket, Flag, MessageSquareWarning, ArrowDown, VenetianMask, User, Sparkles } from "lucide-react";
 
+// kaam ho jayega isse
+
 const reactionIcons = {
   "💀": <Skull className="w-5 h-5" />,
   "🔥": <Flame className="w-5 h-5" />,

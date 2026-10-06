@@ -1,14 +1,5 @@
-/**
- * PERSONALITY TYPES
- *
- * Uses already-fetched repo data + computed metrics to assign one funny archetype.
- *
- * @param {object} params
- * @param {Array}  params.repos           – raw GitHub repo objects
- * @param {object} params.hourCounts      – { morning, afternoon, evening, night } commit totals
- * @param {object} params.languagesMap    – { "TypeScript": bytes, ... }
- * @param {number} params.totalCommits    – total contributions in the last year
- */
+// fatfat run hoga ab
+// PERSONALITY TYPES (simplified)
 function computePersonalityType({ repos, hourCounts, languagesMap, totalCommits }) {
   const nonForks = repos.filter((r) => !r.fork);
   const repoCount = nonForks.length;
@@ -96,16 +87,7 @@ function computePersonalityType({ repos, hourCounts, languagesMap, totalCommits 
   };
 }
 
-/**
- * RED FLAG DETECTOR
- *
- * Returns an array of funny (capped at 3) red flag strings.
- *
- * @param {object} params
- * @param {Array}  params.repos        – raw GitHub repo objects
- * @param {Array}  params.allDays      – contribution calendar days [{date, contributionCount}, ...]
- * @param {number} params.totalCommits – yearly contributions
- */
+// RED FLAG DETECTOR (simplified)
 function detectRedFlags({ repos, allDays, totalCommits }) {
   const flags = [];
 

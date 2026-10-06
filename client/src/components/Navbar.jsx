@@ -2,6 +2,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Heart } from "lucide-react";
 
+// thoda optimize kiya hai
+
 
 const navItems = [
   { label: "Discover", to: "/discover" },

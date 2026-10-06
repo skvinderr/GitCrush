@@ -1,3 +1,4 @@
+// fatfat run hoga ab
 require('dotenv').config({ path: __dirname + '/../.env' });
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -11,7 +12,7 @@ const GITHUB_TOKENS = [
   process.env.GITHUB_TOKEN_2,
   process.env.GITHUB_TOKEN_3,
   process.env.GITHUB_TOKEN_4
-].filter(Boolean); // Filter out undefined
+].filter(x => x); // Filter out undefined
 
 let currentTokenIndex = 0;
 

@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { X, VenetianMask, Bot, BarChart2, ExternalLink, Sparkles, Sprout, Lightbulb, MessageCircle } from "lucide-react";
 
+// ekdum solid code
+
 // Helper for formatting relative time
 function timeAgo(dateString) {
   const date = new Date(dateString);

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { HeartPulse } from "lucide-react";
 
+// ekdum solid code
+
 const MESSAGES = [
   "Fetching your public repositories...",
   "Analyzing your commit history...",

@@ -1,10 +1,11 @@
+// check karna zaruri hai
 const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const { syncGithubProfile } = require("../services/githubSync");
 const prisma = new PrismaClient();
 
-// Session-based auth guard — no longer uses passport
+// auth check (no passport now)
 const isAuthenticated = async (req, res, next) => {
   if (!req.session.userId) {
     return res.status(401).json({ error: "Not authenticated" });
@@ -20,7 +21,7 @@ const isAuthenticated = async (req, res, next) => {
   }
 };
 
-// GET /api/me — return current user
+// get current user
 router.get("/me", isAuthenticated, async (req, res) => {
   try {
     const crushes = await prisma.swipe.count({
@@ -44,7 +45,7 @@ router.get("/me", isAuthenticated, async (req, res) => {
   }
 });
 
-// POST /api/sync-profile — trigger GitHub metric extraction
+// github profile sync trigger
 router.post("/sync-profile", isAuthenticated, async (req, res) => {
   try {
     const updatedUser = await syncGithubProfile(req.user.id);
@@ -55,7 +56,7 @@ router.post("/sync-profile", isAuthenticated, async (req, res) => {
   }
 });
 
-// POST /api/regenerate-bio — re-generate the AI bio (max 5 times)
+// ai bio regenerate (max 5)
 router.post("/regenerate-bio", isAuthenticated, async (req, res) => {
   const { generateAiBio } = require("../services/bioGenerator");
   const user = req.user;
@@ -91,7 +92,7 @@ router.post("/regenerate-bio", isAuthenticated, async (req, res) => {
   }
 });
 
-// PUT /api/me/bio — save a custom manually-written bio
+// save custom bio
 router.put("/me/bio", isAuthenticated, async (req, res) => {
   const { customBio } = req.body;
   if (typeof customBio !== "string") return res.status(400).json({ error: "customBio required" });
@@ -103,7 +104,7 @@ router.put("/me/bio", isAuthenticated, async (req, res) => {
   res.json(updated);
 });
 
-// PATCH /api/me — update user profile fields
+// update profile fields
 router.patch("/me", isAuthenticated, async (req, res) => {
   try {
     const allowedFields = ['customBio', 'hideHeatmap', 'hideStats', 'intent', 'lookingFor', 'location', 'age', 'isHidden'];
@@ -128,7 +129,7 @@ router.patch("/me", isAuthenticated, async (req, res) => {
   }
 });
 
-// PATCH /api/me/repo-visibility — toggle repo visibility
+// toggle repo visibility
 router.patch("/me/repo-visibility", isAuthenticated, async (req, res) => {
   try {
     const { repoId, hidden } = req.body;
@@ -156,7 +157,7 @@ router.patch("/me/repo-visibility", isAuthenticated, async (req, res) => {
   }
 });
 
-// DELETE /api/me — delete user account
+// delete account
 router.delete("/me", isAuthenticated, async (req, res) => {
   try {
     await prisma.user.delete({
@@ -169,7 +170,7 @@ router.delete("/me", isAuthenticated, async (req, res) => {
   }
 });
 
-// GET /api/discover — fetch potential matches (exclude self and already swiped)
+// discover feed (swiped log ignore)
 router.get("/discover", isAuthenticated, async (req, res) => {
   try {
     const currentUserId = req.user.id;
@@ -198,7 +199,7 @@ router.get("/discover", isAuthenticated, async (req, res) => {
       orderBy: { createdAt: 'desc' } // Grab the newest users (including newly crawled ghosts)
     });
 
-    // ── Post-DB Filtering (for JSON languages and experience scores) ──
+    // post db filters (langs / exp)
     if (langsQuery && langsQuery.length > 0) {
       users = users.filter(u => {
         if (!u.languages) return false;
@@ -245,7 +246,7 @@ router.get("/discover", isAuthenticated, async (req, res) => {
   }
 });
 
-// GET /api/trending-active — Fetch 10 ghost profiles recently active 
+// trending profiles
 router.get("/trending-active", isAuthenticated, async (req, res) => {
   try {
     const activeDevs = await prisma.user.findMany({
@@ -741,7 +742,7 @@ router.get("/compatibility/:otherUserId", isAuthenticated, async (req, res) => {
   }
 });
 
-// ─── CONFESSIONS ENDPOINTS ────────────────────────────────────────────────────────
+// confessions endpoints
 
 // GET /api/confessions — Fetch paginated feed
 router.get("/confessions", isAuthenticated, async (req, res) => {
@@ -902,7 +903,7 @@ router.post("/confessions/:id/report", isAuthenticated, async (req, res) => {
   }
 });
 
-// ─── LEADERBOARD & HALL OF MERGES ENDPOINTS ──────────────────────────────────────
+// leaderboard & hall of merges endpoints
 
 // GET /api/leaderboard — Fetch top community members
 router.get("/leaderboard", isAuthenticated, async (req, res) => {

@@ -1,3 +1,4 @@
+// mast logic hai
 const socketIo = require("socket.io");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
@@ -10,11 +11,11 @@ function initSocket(server, sessionMiddleware) {
     },
   });
 
-  // Share session middleware with socket.io
+  // socket.io me session daalo
   const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
   io.use(wrap(sessionMiddleware));
 
-  // Require auth
+  // auth zaruri hai
   io.use((socket, next) => {
     if (socket.request.session && socket.request.session.userId) {
       socket.userId = socket.request.session.userId;
@@ -27,9 +28,9 @@ function initSocket(server, sessionMiddleware) {
   io.on("connection", (socket) => {
     console.log(`Socket connected: ${socket.userId}`);
 
-    // Join a specific match room
+    // match room me jao
     socket.on("join_room", async ({ matchId }) => {
-      // Security: verify user is part of the match
+      // security check (match me hai ya nahi)
       const match = await prisma.match.findUnique({ where: { id: matchId }});
       if (!match || (match.user1Id !== socket.userId && match.user2Id !== socket.userId)) {
         return socket.emit("error", "Unauthorized access to room");
@@ -39,7 +40,7 @@ function initSocket(server, sessionMiddleware) {
       console.log(`User ${socket.userId} joined room ${matchId}`);
     });
 
-    // Handle sending a message
+    // message bhejo
     socket.on("send_message", async ({ matchId, content, type = "text", language = null }) => {
       try {
         const message = await prisma.message.create({
@@ -54,22 +55,22 @@ function initSocket(server, sessionMiddleware) {
           include: { sender: true }
         });
 
-        // Broadcast to everyone in the room (including sender to confirm)
+        // sabko bhej do room me
         io.to(matchId).emit("message_received", message);
       } catch (err) {
         console.error("Error saving message:", err);
       }
     });
 
-    // Handle typing indicator
+    // typing dikhao
     socket.on("typing_indicator", ({ matchId, isTyping }) => {
       // Broadcast to others in the room
       socket.to(matchId).emit("typing_indicator", { userId: socket.userId, isTyping });
     });
 
-    // Handle read receipt
+    // read receipt
     socket.on("mark_read", async ({ matchId }) => {
-      // Mark all messages in this room sent by NOT me as read
+      // jo maine nahi bheje unhe read mark karo
       await prisma.message.updateMany({
         where: {
           matchId,
@@ -82,7 +83,7 @@ function initSocket(server, sessionMiddleware) {
       socket.to(matchId).emit("messages_read", { matchId, readBy: socket.userId });
     });
 
-    // Handle reaction
+    // reaction handle karo
     socket.on("add_reaction", async ({ messageId, emoji }) => {
       try {
         const msg = await prisma.message.findUnique({ where: { id: messageId }});
@@ -111,7 +112,7 @@ function initSocket(server, sessionMiddleware) {
       }
     });
 
-    // Notify others that a challenge was submitted or updated
+    // challenge update notification
     socket.on("notify_challenge_update", ({ matchId }) => {
       socket.to(matchId).emit("challenge_updated");
     });
