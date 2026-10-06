@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
+import { Skull, Flame, Eye, Check, Rocket, Flag, MessageSquareWarning, ArrowDown, VenetianMask, User, Sparkles } from "lucide-react";
+
+const reactionIcons = {
+  "💀": <Skull className="w-5 h-5" />,
+  "🔥": <Flame className="w-5 h-5" />,
+  "👀": <Eye className="w-5 h-5" />,
+  "✅": <Check className="w-5 h-5" />,
+  "🚀": <Rocket className="w-5 h-5" />
+};
 
 function timeFormatter(dateString) {
   const d = new Date(dateString);
@@ -70,9 +79,9 @@ function ConfessionCard({ confession, currentUserId, onUpdate }) {
         </div>
         <button 
            onClick={handleReport}
-           className={`text-xs px-3 py-1.5 border-2 border-black font-black uppercase tracking-widest transition-all shadow-[2px_2px_0_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none ${reported ? 'text-white bg-black' : 'text-black bg-white hover:bg-red-500 hover:text-white'}`}
+           className={`text-xs px-3 py-1.5 border-2 border-black font-black uppercase tracking-widest transition-all shadow-[2px_2px_0_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center gap-1 ${reported ? 'text-white bg-black' : 'text-black bg-white hover:bg-red-500 hover:text-white'}`}
         >
-          {reported ? 'Reported' : 'Report 🚩'}
+          {reported ? 'Reported' : <><Flag className="w-3 h-3" /> Report</>}
         </button>
       </div>
 
@@ -81,7 +90,7 @@ function ConfessionCard({ confession, currentUserId, onUpdate }) {
       </p>
 
       <div className="flex flex-wrap gap-3 pt-6 border-t-4 border-black border-dashed">
-        {["💀", "🔥", "👀", "✅", "🚀"].map(emoji => {
+        {Object.keys(reactionIcons).map(emoji => {
           const reactors = reactions[emoji] || [];
           const hasReacted = reactors.includes(currentUserId);
           return (
@@ -94,7 +103,7 @@ function ConfessionCard({ confession, currentUserId, onUpdate }) {
                   : "bg-white text-black hover:bg-brand-yellow"
               }`}
             >
-              <span className="text-lg">{emoji}</span>
+              <span className="flex items-center justify-center">{reactionIcons[emoji]}</span>
               <span>{reactors.length}</span>
             </button>
           )
@@ -183,7 +192,7 @@ export default function Confessions() {
           <div className="mb-8 text-left">
             <h1 className="font-black text-black tracking-tighter mb-4 uppercase leading-[0.95]">
               <div className="flex items-center gap-4 mb-2">
-                <span className="text-5xl lg:text-6xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤫</span>
+                <MessageSquareWarning className="w-12 h-12 lg:w-16 lg:h-16 text-black drop-shadow-[4px_4px_0_rgba(0,0,0,1)]" />
                 <span className="text-5xl lg:text-6xl break-words">Tech</span>
               </div>
               <span className="text-[2.75rem] lg:text-[2.7rem] xl:text-[3.5rem] whitespace-nowrap block">Confessions</span>
@@ -193,7 +202,7 @@ export default function Confessions() {
           </div>
 
           <div className="bg-brand-purple border-4 border-black p-6 shadow-[8px_8px_0_rgba(0,0,0,1)] mb-12">
-            <h3 className="text-white font-black text-xl mb-4 uppercase tracking-widest drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">Confess Here 👇</h3>
+            <h3 className="text-white font-black text-xl mb-4 uppercase tracking-widest drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex items-center gap-2">Confess Here <ArrowDown className="w-5 h-5" /></h3>
             <textarea
               className="w-full bg-white border-4 border-black p-4 font-mono text-sm lg:text-base font-bold text-black focus:outline-none shadow-[4px_4px_0_rgba(0,0,0,1)] resize-none placeholder:text-black/50"
               rows={5}
@@ -210,8 +219,8 @@ export default function Confessions() {
                   onChange={(e) => setIsAnonymous(e.target.checked)}
                   className="w-5 h-5 border-2 border-black text-black focus:ring-0 cursor-pointer"
                 />
-                <span className={`text-sm font-black uppercase tracking-widest text-black`}>
-                  {isAnonymous ? "🎭 Anonymous" : "👤 Public"}
+                <span className={`text-sm font-black uppercase tracking-widest text-black flex items-center gap-2`}>
+                  {isAnonymous ? <><VenetianMask className="w-4 h-4" /> Anonymous</> : <><User className="w-4 h-4" /> Public</>}
                 </span>
               </label>
 
@@ -240,15 +249,15 @@ export default function Confessions() {
           <div className="flex items-center justify-start gap-4 mb-8">
             <button 
               onClick={() => setSort("top")}
-              className={`px-6 py-2 font-black text-base border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "top" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
+              className={`flex items-center gap-2 px-6 py-2 font-black text-base border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "top" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
             >
-              🔥 Top Sins
+              <Flame className="w-5 h-5" /> Top Sins
             </button>
             <button 
               onClick={() => setSort("new")}
-              className={`px-6 py-2 font-black text-base border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "new" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
+              className={`flex items-center gap-2 px-6 py-2 font-black text-base border-4 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] uppercase tracking-widest transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${sort === "new" ? "bg-black text-white border-black" : "bg-white text-black hover:bg-brand-yellow"}`}
             >
-              ✨ Newest
+              <Sparkles className="w-5 h-5" /> Newest
             </button>
           </div>
 
@@ -271,9 +280,9 @@ export default function Confessions() {
               <div className="pt-8 pb-24 flex justify-center">
                 <button 
                   onClick={handleLoadMore}
-                  className="px-10 py-4 border-4 border-black bg-white text-black font-black uppercase tracking-widest shadow-[8px_8px_0_rgba(0,0,0,1)] hover:bg-brand-yellow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xl"
+                  className="flex items-center gap-2 px-10 py-4 border-4 border-black bg-white text-black font-black uppercase tracking-widest shadow-[8px_8px_0_rgba(0,0,0,1)] hover:bg-brand-yellow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xl"
                 >
-                  Load More Sins 👇
+                  Load More Sins <ArrowDown className="w-6 h-6" />
                 </button>
               </div>
             )}

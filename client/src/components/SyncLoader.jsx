@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { HeartPulse } from "lucide-react";
 
 const MESSAGES = [
   "Fetching your public repositories...",
@@ -36,8 +37,8 @@ export default function SyncLoader({ onComplete }) {
         </div>
 
         {/* Heart icon in center */}
-        <div className="absolute inset-0 flex items-center justify-center text-4xl animate-pulse">
-          💘
+        <div className="absolute inset-0 flex items-center justify-center text-brand-pink animate-pulse">
+          <HeartPulse className="w-10 h-10" />
         </div>
       </div>
 

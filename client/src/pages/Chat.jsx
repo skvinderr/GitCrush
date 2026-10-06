@@ -5,8 +5,16 @@ import { io } from "socket.io-client";
 import { motion, AnimatePresence } from "framer-motion";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css"; // Beautiful dark theme
+import { Star, Flame, Skull, Eye, Rocket, Snowflake, HeartHandshake, Swords } from "lucide-react";
 
 const AVAILABLE_REACTIONS = ["⭐", "🔥", "💀", "👀", "🚀"];
+const reactionIcons = {
+  "⭐": <Star className="w-4 h-4 inline" />,
+  "🔥": <Flame className="w-4 h-4 inline" />,
+  "💀": <Skull className="w-4 h-4 inline" />,
+  "👀": <Eye className="w-4 h-4 inline" />,
+  "🚀": <Rocket className="w-4 h-4 inline" />
+};
 
 const CHALLENGE_PROMPTS = [
   "FizzBuzz but make it interesting — fizz for primes, buzz for fibonacci numbers",
@@ -231,7 +239,7 @@ export default function Chat() {
             return (
               <div key={msg.id} className="flex justify-center w-full my-6">
                 <div className={`border-4 px-6 py-4 flex items-center gap-3 backdrop-blur-sm max-w-lg text-center shadow-[4px_4px_0_rgba(0,0,0,1)] ${isDateRepoSystem ? 'bg-brand-yellow border-black' : 'bg-white border-black'}`}>
-                  <span className="text-2xl animate-bounce drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">{isDateRepoSystem ? '🚀' : '🧊'}</span>
+                  <span className="animate-bounce drop-shadow-[2px_2px_0_rgba(0,0,0,1)] flex items-center justify-center">{isDateRepoSystem ? <Rocket className="w-8 h-8" /> : <Snowflake className="w-8 h-8" />}</span>
                   <div className="text-sm">
                     <span className="text-black font-black uppercase tracking-widest">{isDateRepoSystem ? 'DATE REPO: ' : 'ICEBREAKER: '}</span>
                     {isDateRepoSystem ? (
@@ -250,7 +258,7 @@ export default function Chat() {
             return (
               <div key={msg.id} className="flex justify-center w-full my-6">
                 <div className="bg-brand-blue/30 border-4 border-black px-6 py-5 flex flex-col items-center gap-3 max-w-sm text-center shadow-[8px_8px_0_rgba(0,0,0,1)] -rotate-1">
-                  <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🤝</span>
+                  <HeartHandshake className="w-12 h-12 text-black drop-shadow-[4px_4px_0_rgba(0,0,0,1)]" />
                   <div className="text-sm text-black px-4 font-black uppercase tracking-wide">
                     {msg.content}
                   </div>
@@ -334,8 +342,8 @@ export default function Chat() {
                   {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                     <div className={`absolute -bottom-4 ${isMe ? 'right-2' : 'left-2'} flex gap-1 z-10`}>
                       {Object.entries(msg.reactions).map(([emoji, users]) => (
-                        <div key={emoji} className="bg-white border-2 border-black px-2 py-0.5 text-xs flex items-center shadow-[2px_2px_0_rgba(0,0,0,1)] font-black text-black">
-                          {emoji} <span className="ml-1 text-[10px] text-gray-500">{users.length}</span>
+                        <div key={emoji} className="bg-white border-2 border-black px-2 py-0.5 text-xs flex items-center shadow-[2px_2px_0_rgba(0,0,0,1)] font-black text-black gap-1">
+                          {reactionIcons[emoji] || emoji} <span className="text-[10px] text-gray-500">{users.length}</span>
                         </div>
                       ))}
                     </div>
@@ -427,7 +435,7 @@ export default function Chat() {
                 onClick={() => addReaction(emoji)}
                 className="w-10 h-10 border-2 border-transparent hover:border-black hover:bg-brand-yellow font-black text-xl flex items-center justify-center hover:shadow-[2px_2px_0_rgba(0,0,0,1)] transition-all"
               >
-                {emoji}
+                {reactionIcons[emoji] || emoji}
               </button>
             ))}
           </motion.div>
@@ -484,7 +492,7 @@ function EmbeddedRepoCard({ url }) {
             <p className="text-xs text-black font-bold line-clamp-2 leading-relaxed mb-3">{data.description}</p>
             <div className="flex items-center gap-4 text-[10px] text-black font-black font-mono">
               {data.language && <span className="flex items-center gap-1 border-2 border-black bg-brand-blue px-1 shadow-[2px_2px_0_rgba(0,0,0,1)]">{data.language}</span>}
-              <span className="flex items-center gap-1">⭐ {data.stargazers_count}</span>
+              <span className="flex items-center gap-1"><Star className="w-3 h-3" /> {data.stargazers_count}</span>
             </div>
           </>
         )}
@@ -600,7 +608,7 @@ function ChallengeCard({ matchId, partner, socket }) {
     <div className="w-full max-w-3xl bg-white border-4 border-black shadow-[12px_12px_0_rgba(0,0,0,1)] overflow-hidden relative">
       <div className="p-6 border-b-4 border-black bg-brand-yellow/30 text-center">
         <h3 className="text-2xl font-black text-black flex items-center justify-center gap-2 uppercase tracking-wide">
-          <span className="drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">⚔️</span> Pair Programming Icebreaker
+          <Swords className="w-8 h-8 drop-shadow-[2px_2px_0_rgba(0,0,0,1)]" /> Pair Programming Icebreaker
         </h3>
         <p className="text-black font-mono font-bold text-sm mt-4 bg-white p-4 border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]">
           {prompt}
@@ -635,7 +643,7 @@ function ChallengeCard({ matchId, partner, socket }) {
           // STATE 2: Waiting for partner
           <div className="py-16 flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 border-4 border-black border-t-brand-pink rounded-full animate-spin mb-6"></div>
-            <h4 className="text-3xl font-black text-black mb-2 uppercase tracking-tight">Code Pushed! 🚀</h4>
+            <h4 className="text-3xl font-black text-black mb-2 uppercase tracking-tight flex items-center justify-center gap-2">Code Pushed! <Rocket className="w-8 h-8" /></h4>
             <p className="text-black font-bold text-lg">
               Waiting for <span className="text-brand-pink bg-black px-2 shadow-[2px_2px_0_rgba(0,0,0,1)]">@{partner?.username}</span> to submit their solution...
             </p>

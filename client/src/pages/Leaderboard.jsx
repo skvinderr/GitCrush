@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Trophy, Landmark, Star, Laptop, HeartHandshake, Sparkles, Ghost } from "lucide-react";
 
 function LeaderboardRow({ rank, title, subtitle, avatarUrl, stat, profileUrl }) {
   const isTop3 = rank <= 3;
-  const badges = ["🏆", "🥈", "🥉"];
+  const badges = [<Trophy key="1" className="w-6 h-6" />, <Trophy key="2" className="w-6 h-6 text-gray-500" />, <Trophy key="3" className="w-6 h-6 text-amber-700" />];
   const colors = [
     "bg-brand-yellow text-black border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]",
     "bg-gray-200 text-black border-2 border-black shadow-[2px_2px_0_rgba(0,0,0,1)]",
@@ -77,7 +78,7 @@ function MatchSubmitModal({ onClose, matches }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-md bg-brand-peach/50 border-4 border-black rounded-none p-8 shadow-[12px_12px_0_rgba(0,0,0,1)] z-10">
-        <h3 className="text-3xl font-black text-black mb-2 uppercase tracking-tight flex items-center justify-between">Submit a Merge 🏛️ <button onClick={onClose} className="text-xl font-black mb-2 hover:scale-125 transition-transform">X</button></h3>
+        <h3 className="text-3xl font-black text-black mb-2 uppercase tracking-tight flex items-center justify-between">Submit a Merge <Landmark className="w-8 h-8 ml-2" /> <button onClick={onClose} className="text-xl font-black mb-2 hover:scale-125 transition-transform">X</button></h3>
         <p className="text-sm font-bold text-black mb-8 border-l-4 border-black pl-3 bg-white py-2">Built something with a GitCrush match? Immortalize it in the Hall of Merges.</p>
         
         <div className="space-y-6">
@@ -168,28 +169,28 @@ export default function Leaderboard() {
         <div className="xl:w-5/12 shrink-0">
           <div className="sticky top-24">
             <h2 className="text-5xl font-black text-black mb-4 flex items-center gap-3 tracking-tighter uppercase">
-              <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🏆</span> Weekly Leaders
+              <Trophy className="w-12 h-12 text-black drop-shadow-[4px_4px_0_rgba(0,0,0,1)]" /> Weekly Leaders
             </h2>
             <p className="text-black font-bold text-lg mb-8 bg-white border-2 border-black inline-block px-4 py-2 shadow-[4px_4px_0_rgba(0,0,0,1)] -rotate-1">Top developers in the community. Resets Monday.</p>
             
             <div className="bg-white border-4 border-black p-2 mb-8 inline-flex shadow-[8px_8px_0_rgba(0,0,0,1)] gap-2 flex-wrap sm:flex-nowrap">
               <button 
                 onClick={() => setActiveTab("stars")} 
-                className={`px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'stars' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
+                className={`flex items-center gap-2 px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'stars' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
               >
-                ⭐ Stars
+                <Star className="w-4 h-4" /> Stars
               </button>
               <button 
                 onClick={() => setActiveTab("active")} 
-                className={`px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'active' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
+                className={`flex items-center gap-2 px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'active' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
               >
-                💻 Active
+                <Laptop className="w-4 h-4" /> Active
               </button>
               <button 
                 onClick={() => setActiveTab("compatible")} 
-                className={`px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'compatible' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
+                className={`flex items-center gap-2 px-6 py-3 font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'compatible' ? 'bg-brand-yellow font-black border-2 border-black text-black shadow-[2px_2px_0_rgba(0,0,0,1)]' : 'border-2 border-transparent text-black hover:bg-brand-peach'}`}
               >
-                💕 Compatible
+                <HeartHandshake className="w-4 h-4" /> Compatible
               </button>
             </div>
 
@@ -242,21 +243,21 @@ export default function Leaderboard() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
             <div>
               <h2 className="text-5xl font-black text-black mb-4 flex items-center gap-3 tracking-tighter uppercase">
-                <span className="text-5xl drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">🏛️</span> Hall of Merges
+                <Landmark className="w-12 h-12 text-black drop-shadow-[4px_4px_0_rgba(0,0,0,1)]" /> Hall of Merges
               </h2>
               <p className="text-black font-bold text-lg bg-brand-peach border-2 border-black inline-block px-4 py-2 shadow-[4px_4px_0_rgba(0,0,0,1)] rotate-1">Legendary developers who shipped together.</p>
             </div>
             <button 
               onClick={() => setShowSubmitModal(true)}
-              className="btn-primary px-8 py-4 text-lg uppercase tracking-widest shadow-[4px_4px_0_rgba(0,0,0,1)] font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-4 border-black border-dashed bg-brand-pink text-white"
+              className="btn-primary flex items-center gap-2 px-8 py-4 text-lg uppercase tracking-widest shadow-[4px_4px_0_rgba(0,0,0,1)] font-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all border-4 border-black border-dashed bg-brand-pink text-white"
             >
-              Submit a Merge ✨
+              Submit a Merge <Sparkles className="w-5 h-5" />
             </button>
           </div>
 
           {hallOfMerges.length === 0 ? (
             <div className="py-24 mt-8 text-center border-4 border-black border-dashed bg-white shadow-[8px_8px_0_rgba(0,0,0,1)]">
-              <span className="text-6xl mb-6 block drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">👻</span>
+              <Ghost className="w-20 h-20 text-black mx-auto mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]" />
               <p className="text-black text-xl font-black uppercase tracking-widest">No legendary merges yet. Be the first.</p>
             </div>
           ) : (
@@ -286,8 +287,8 @@ export default function Leaderboard() {
                   </p>
 
                   <div className="flex items-center justify-between pt-6 border-t-4 border-black border-dashed">
-                    <span className="text-sm text-black font-black font-mono uppercase">
-                      ⭐ {merge.match.user1.totalStars + merge.match.user2.totalStars} stars
+                    <span className="flex items-center gap-1 text-sm text-black font-black font-mono uppercase">
+                      <Star className="w-4 h-4" /> {merge.match.user1.totalStars + merge.match.user2.totalStars} stars
                     </span>
                     <a href={merge.repoUrl} target="_blank" rel="noreferrer" className="btn-primary text-xs px-6 py-2 shadow-[2px_2px_0_rgba(0,0,0,1)]">
                       View Repo

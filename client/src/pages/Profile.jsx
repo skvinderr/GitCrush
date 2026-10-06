@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { SwipeCard } from "./Discover";
+import { Heart, Star } from "lucide-react";
 
 export default function Profile() {
   const { user: authUser, setUser } = useAuth();
@@ -140,8 +141,8 @@ export default function Profile() {
           }}
         />
         {isMatched && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-brand-yellow text-black font-black px-6 py-2 border-4 border-black z-50 whitespace-nowrap shadow-[4px_4px_0_rgba(0,0,0,1)] -rotate-3 text-xl hover:rotate-0 transition-transform cursor-pointer" onClick={() => navigate('/matches')}>
-            Already Matched! 💖
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-brand-yellow text-black font-black px-6 py-2 border-4 border-black z-50 whitespace-nowrap shadow-[4px_4px_0_rgba(0,0,0,1)] -rotate-3 text-xl hover:rotate-0 transition-transform cursor-pointer flex items-center gap-2" onClick={() => navigate('/matches')}>
+            Already Matched! <Heart className="w-6 h-6 fill-current" />
           </div>
         )}
       </div>
@@ -197,8 +198,8 @@ export default function Profile() {
             <div className="pt-2">
               {isMatched ? (
                 <div className="space-y-4">
-                  <div className="bg-brand-yellow text-black px-4 py-2 font-black border-2 border-black inline-block shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    Matched! ??
+                  <div className="bg-brand-yellow text-black px-4 py-2 font-black border-2 border-black inline-flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    Matched! <Heart className="w-4 h-4 fill-current" />
                   </div>
                   <button onClick={() => navigate('/matches')} className="block bg-brand-cyan text-black px-6 py-2 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
                     Open Chat
@@ -206,7 +207,7 @@ export default function Profile() {
                 </div>
               ) : (
                 <button className="bg-brand-yellow text-black px-6 py-3 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2">
-                  <span>Send a Super Star ?</span>
+                  <span>Send a Super Star</span> <Star className="w-5 h-5 fill-current" />
                 </button>
               )}
             </div>

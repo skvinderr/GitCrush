@@ -1,8 +1,9 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import { useAuth } from "../context/AuthContext";
 import { motion, useMotionValue, useTransform, useAnimation, AnimatePresence } from "framer-motion";
+import { PartyPopper, SlidersHorizontal, X, MapPin, VenetianMask, Flag, Ban, Ghost } from "lucide-react";
 
 // Helper for GitHub-style language colors
 const languageColors = {
@@ -141,7 +142,7 @@ function MatchOverlay({ onClose }) {
         transition={{ type: "spring", bounce: 0.6 }}
         className="text-center bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-12 rounded-3xl"
       >
-        <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">ðŸŽ‰</div>
+        <div className="flex justify-center mb-6"><PartyPopper className="w-24 h-24 text-black drop-shadow-[4px_4px_0_rgba(0,0,0,1)]" /></div>
         <h1 className="text-4xl md:text-5xl font-black text-black mb-4 uppercase tracking-tight">
           Merge Request Approved
         </h1>
@@ -177,9 +178,9 @@ function FilterDrawer({ isOpen, onClose, filters, setFilters, applyFilters }) {
             className="fixed top-0 right-0 h-full w-full max-w-sm bg-white border-l-4 border-black shadow-[-8px_0px_0px_0px_rgba(0,0,0,1)] z-50 p-6 overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-8 border-b-4 border-black pb-4">
-              <h2 className="text-2xl font-black text-black flex items-center gap-2 uppercase tracking-tight"><span>ðŸŽ›ï¸</span> Filters</h2>
-              <button onClick={onClose} className="p-2 bg-brand-yellow border-2 border-black rounded-sm shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all font-black text-black">
-                âœ•
+              <h2 className="text-2xl font-black text-black flex items-center gap-2 uppercase tracking-tight"><SlidersHorizontal className="w-6 h-6" /> Filters</h2>
+              <button onClick={onClose} className="p-2 bg-brand-yellow border-2 border-black rounded-sm shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all font-black text-black flex items-center justify-center">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -365,10 +366,10 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
                 </div>
               )}
             </div>
-            {profile.location && <p className="text-sm font-bold text-text-secondary mt-1 tracking-tight">ðŸ“ {profile.location}</p>}
+            {profile.location && <p className="text-sm font-bold text-text-secondary mt-1 tracking-tight flex items-center gap-1"><MapPin className="w-4 h-4" /> {profile.location}</p>}
             {profile.personalityType && (
               <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 border-2 border-black bg-brand-purple text-xs font-bold text-black uppercase tracking-wider shadow-[2px_2px_0_rgba(0,0,0,1)]">
-                <span>ðŸŽ­</span> {profile.personalityType}
+                <VenetianMask className="w-4 h-4" /> {profile.personalityType}
               </div>
             )}
           </div>
@@ -433,7 +434,7 @@ export function SwipeCard({ profile, isFront, zIndex, onSwipe }) {
           {profile.redFlags && profile.redFlags.length > 0 && (
             <div className="flex-1 text-right">
               <div className="text-[10px] text-red-400/80 mb-1 uppercase tracking-widest font-bold flex items-center justify-end gap-1">
-                <span>ðŸš©</span> Flags
+                <Flag className="w-3 h-3" /> Flags
               </div>
               <ul className="space-y-1">
                 {profile.redFlags.map((flag, idx) => (
@@ -603,8 +604,8 @@ export default function Discover() {
 
       {/* Empty State */}
       {profiles.length === 0 && (
-        <div className="text-center px-4 max-w-sm">
-          <div className="text-6xl mb-6 opacity-50">ðŸ›‘</div>
+        <div className="text-center px-4 max-w-sm flex flex-col items-center">
+          <Ban className="w-24 h-24 mb-6 opacity-50 text-black" />
           <h2 className="text-2xl font-bold text-text-primary mb-3">No more devs in your area!</h2>
           <p className="text-text-secondary mb-6">Looks like you've swiped through everyone, or your filters are too strict. Try loosening them up or \`git pull --all\` later.</p>
           <button onClick={() => {
@@ -655,7 +656,7 @@ export default function Discover() {
               transition={{ type: "spring", bounce: 0.6 }}
               className="text-center bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-12 rounded-3xl"
             >
-              <div className="text-8xl mb-6 drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">ðŸ‘»</div>
+              <div className="flex justify-center mb-6"><Ghost className="w-24 h-24 text-black drop-shadow-[4px_4px_0_rgba(0,0,0,1)]" /></div>
               <h1 className="text-4xl md:text-5xl font-black text-black mb-4 uppercase tracking-tight">
                 Invite @{ghostInvite.username}!
               </h1>
